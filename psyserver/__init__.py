@@ -91,15 +91,15 @@ def save_example_config(config_path: str | None = None):
 
     example_config_str = """title = "psyserver config"
 
-    [psyserver]
-    experiments_dir = "experiments"
-    data_dir = "data"
+[psyserver]
+experiments_dir = "experiments"
+data_dir = "data"
 
-    [uvicorn]
-    host = "127.0.0.1"
-    port = 5000
-    log_level = "info"
-    """
+[uvicorn]
+host = "127.0.0.1"
+port = 5000
+log_level = "info"
+"""
 
     if config_path is None:
         config_path = default_config_path()
