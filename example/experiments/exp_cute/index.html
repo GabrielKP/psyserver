@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>How cute?</title>
+  </head>
+
+  <body>
+    <div id="main_container" class="container">
+      <p id="instructions">
+        Loading - if the page doesn't load in a few seconds, this task may not
+        work on your computer.
+      </p>
+      <br />
+      <p id="animal_label"></p>
+      <p id="slider_label"></p>
+      <input
+        id="slider"
+        type="range"
+        min="1"
+        max="15"
+        step="1"
+        oninput="updateSliderLabel()"
+      />
+      <button id="start_button">Start</button>
+      <a id="prolific_link"></a>
+      <br />
+      <img id="sheep_1" src="images/sheep_1.jpg" alt="an image of a sheep" />
+      <img id="sheep_2" src="images/sheep_2.jpg" alt="an image of a sheep" />
+      <img id="sheep_3" src="images/sheep_3.jpg" alt="an image of a sheep" />
+      <img id="goat_1" src="images/goat_1.jpg" alt="an image of a goat" />
+      <img id="goat_2" src="images/goat_2.jpg" alt="an image of a goat" />
+      <img id="goat_3" src="images/goat_3.jpg" alt="an image of a goat" />
+    </div>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="accessories.js"></script>
+    <script src="main_script.js"></script>
+  </body>
+</html>

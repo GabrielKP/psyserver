@@ -1,0 +1,22 @@
+body {
+    font-family: "Avenir Next", "Helvetica Neue", Helvetica;
+}
+
+button {
+    display: block;
+    margin: 0 auto;
+}
+
+img {
+    display: none;
+    width: 400px;
+}
+
+p {
+    white-space: pre-line;
+}
+
+.container {
+    margin: 0 auto;
+    width: 600px;
+}

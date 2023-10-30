@@ -1,0 +1,11 @@
+title = "psyserver config"
+
+    [psyserver]
+    experiments_dir = "experiments"
+    data_dir = "data"
+
+    [uvicorn]
+    host = "127.0.0.1"
+    port = 5000
+    log_level = "info"
+    
