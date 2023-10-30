@@ -50,7 +50,7 @@ async def save_data(
         os.makedirs(data_dir)
 
     with open(os.path.join(data_dir, f"{id}.json"), "w") as f_out:
-        json.dump(experiment_data, f_out)
+        json.dump(dict(experiment_data), f_out)
     return {"status": "saved"}
 
 
