@@ -1,0 +1,18 @@
+[project]
+name = "psyserver"
+version = "0.1.0"
+description = "Plotboard server side application: upload plotly plots to a website."
+dependencies = [
+    "fastapi[all]",
+    "uvicorn[standard]",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[project.urls]
+Home = "https://github.com/GabrielKP/psyserver"
+
+[project.scripts]
+psyserver = "psyserver:main"
