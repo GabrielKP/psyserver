@@ -95,6 +95,91 @@ $.ajax({
 
 ### Save as csv
 
+If you want to save your data as `.csv`, you can call `/<experiment>/save/csv`.
+
+The transmitted `json` object is required to have following parameters:
+
+- `id`: The participant id, used as a filename.
+- `trialdata`: A list of dict-like objects. The keys of the first row of this list is used to determine the csv header. If new keys are encountered, an `422 - unprocessable entity` error will be raised.
+- `fieldnames`: A list of strings containing the names . Keys encountered in trialdata will be saved in this order. This field is useful if you have varying keys in `trialdata`, and do not want to modify the first entry to have all keys.
+
+#### Example without fieldnames
+
+```js
+// example data
+participant_data = {
+  id: "debug_1",
+  trialdata: [
+    { trial: 1, time: 120230121, correct: true },
+    { trial: 2, time: 120234001, correct: false },
+    { trial: 3, time: 120237831, correct: true },
+    // ....
+  ],
+};
+// post data to server
+$.ajax({
+  url: "/exp_cute/save/csv",
+  type: "POST",
+  data: JSON.stringify(participant_data),
+  contentType: "application/json",
+  success: () => {
+    console.log("Saving successful");
+    // success function
+  },
+}).fail(() => {
+  console.log("ERROR with $.post()");
+});
+```
+
+Will be saved as `<data_dir>/exp_cute/debug_1_CURRENTDATETIME.csv`:
+
+```csv
+trial,time,correct
+1,120230121,true
+2,120234001,false
+3,120237831,true
+```
+
+#### Example with fieldnames
+
+This
+
+```js
+// example data
+participant_data = {
+  id: "debug_1",
+  trialdata: [
+    { trial: 1, time: 120230121, correct: true },
+    { trial: 2, time: 120234001, correct: false, extra: "field" },
+    { trial: 3, time: 120237831, correct: true },
+    // ....
+  ],
+  fieldnames: ["trial", "time", "correct", "extra"],
+};
+// post data to server
+$.ajax({
+  url: "/exp_cute/save/csv",
+  type: "POST",
+  data: JSON.stringify(participant_data),
+  contentType: "application/json",
+  success: () => {
+    console.log("Saving successful");
+    // success function
+  },
+}).fail(() => {
+  console.log("ERROR with $.post()");
+});
+```
+
+Will be saved as `<data_dir>/exp_cute/debug_1_CURRENTDATETIME.csv`:
+
+```csv
+trial,time,correct,extra
+1,120230121,true,,
+2,120234001,false,field
+3,120237831,true,
+```
+
 ## Development setup
 
 ```sh
