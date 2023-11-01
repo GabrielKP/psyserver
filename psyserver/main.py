@@ -37,9 +37,10 @@ async def save_data(study: str, study_data: StudyDataCsv):
         os.makedirs(data_dir)
 
     now = str(datetime.now())[:19].replace(":", "-")
+    filepath = os.path.join(data_dir, f"{id}_{now}.csv")
 
     fieldnames = fieldnames or trialdata[0].keys()
-    with open(os.path.join(data_dir, f"{id}_{now}.json"), "w") as csvfile:
+    with open(filepath, "w") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         try:
@@ -65,8 +66,9 @@ async def save_data(
         os.makedirs(data_dir)
 
     now = str(datetime.now())[:19].replace(":", "-")
+    filepath = os.path.join(data_dir, f"{id}_{now}.json")
 
-    with open(os.path.join(data_dir, f"{id}_{now}.json"), "w") as f_out:
+    with open(filepath, "w") as f_out:
         json.dump(dict(study_data), f_out)
     return {"status": "saved"}
 
