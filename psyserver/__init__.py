@@ -10,14 +10,14 @@ DEFAULT_CONFIG_NAME = "psyserver.toml"
 
 
 class Settings(BaseSettings):
-    experiments_dir: str = "experiments"
+    studies_dir: str = "studies"
     data_dir: str = "data"
 
 
 def main():
     parser = argparse.ArgumentParser(
         prog="psyserver",
-        description=("A server for hosting online experiments."),
+        description=("A server for hosting online studies."),
     )
     subparsers = parser.add_subparsers(
         title="commands",
@@ -92,7 +92,7 @@ def save_example_config(config_path: str | None = None):
     example_config_str = """title = "psyserver config"
 
 [psyserver]
-experiments_dir = "experiments"
+studies_dir = "studies"
 data_dir = "data"
 
 [uvicorn]

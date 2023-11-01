@@ -1,6 +1,6 @@
 # psyserver
 
-A server to host online experiments on.
+A server to host online studies on.
 
 ## Run
 
@@ -37,14 +37,14 @@ The configuration has two groups:
 
 ```toml
 [psyserver]
-experiments_dir = "experiments"
+studies_dir = "studies"
 data_dir = "data"
 ```
 
 Here you can configure following fields:
 
-- `experiments_dir`: path to directory which contains experiments. Any directory inside will be reachable via the url. E.g. an experiment in `<experiments_dir>/exp_cute/index.html` will have the url `<host>:<port>/exp_cute/index.html`.
-- `data_dir`: directory in which experiment data is saved. Has to be different from `experiments_dir`. E.g. data submissions to `<host>:<port>/exp_cute/save` will be saved in `<data_dir>/exp_cute/`
+- `studies_dir`: path to directory which contains studies. Any directory inside will be reachable via the url. E.g. a study in `<studies_dir>/exp_cute/index.html` will have the url `<host>:<port>/exp_cute/index.html`.
+- `data_dir`: directory in which study data is saved. E.g. data submissions to the url `<host>:<port>/exp_cute/save` will be saved in `<data_dir>/exp_cute/`. Has to be different from `studies_dir`.
 
 ### uvicorn config
 
@@ -64,7 +64,7 @@ Participant data sent to the server needs to adhere to a certain format.
 
 We recommend using jquery to post the data.
 
-Generally, data is sent to `/<experiment>/save`.
+Generally, data is sent to `/<study>/save`.
 
 ### Save as json
 
@@ -95,7 +95,7 @@ $.ajax({
 
 ### Save as csv
 
-If you want to save your data as `.csv`, you can call `/<experiment>/save/csv`.
+If you want to save your data as `.csv`, you can call `/<study>/save/csv`.
 
 The transmitted `json` object is required to have following parameters:
 
