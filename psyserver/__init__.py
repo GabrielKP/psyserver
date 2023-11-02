@@ -10,6 +10,9 @@ from pydantic_settings import BaseSettings
 DEFAULT_CONFIG_NAME = "psyserver.toml"
 
 
+__version__ = "0.1.0"
+
+
 class Settings(BaseSettings):
     studies_dir: str = "studies"
     data_dir: str = "data"
