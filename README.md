@@ -1,31 +1,67 @@
-# psyserver
+<div align="center">
 
-A server to host online studies on.
+# PsyServer
 
-## Run
+## A server to host your online studies on.
+
+</div>
+
+<p align="center">
+<a href="https://github.com/psf/black/blob/main/LICENSE"><img alt="License: MIT" src="https://black.readthedocs.io/en/stable/_static/license.svg"></a>
+<a href="https://pypi.org/project/black/"><img alt="PyPI" src="https://img.shields.io/pypi/v/black"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
+
+PsyServer is a simple, easy to setup server on which you can host your online studies safely and conveniently without committing to a certain framework to code the experiments. Eliminate the need to put excessive time into setting up backends and servers!
+
+## Setup
+
+To setup a fully functional server to host studies on, you will require following things:
+
+1. A host machine to run the server on
+2. Installing PsyServer
+3. Get a domain (optional)
+4. Setup HTTPS (optional)
+5. Run the Server
+
+### Host machine
+
+### PsyServer Setup
+
+PsyServer comes as a python package, meaning that installing it is as easy as installing a python package!
 
 ```sh
-# 1. set up conda environment
-conda create -n psyserver python=3.11
-conda activate psyserver
-
-# 2. install package
-pip install psyserver
-
-# 3. create psyserver folder
+# 1. create psyserver folder
 mkdir server
 cd server
 
-# 3. create example config/structure
+# 2. set up conda environment (optional)
+conda create -n psyserver python=3.11
+conda activate psyserver
+
+# 3. install package
+pip install psyserver
+
+# 4. create example config/structure
 psyserver init
 
-# 4. configure server
+# 5. configure server
 # open psyserver.toml with your editor of choice, e.g. vim
 vim psyserver.toml
 
-# 5. run server
+# 6. run server
 psyserver run
 ```
+
+### Domain Name
+
+### HTTPS
+
+To setup up a https server, you can use a reverse proxy or setup the uvicorn instance running
+
+### Running setup
+
+Systemd
 
 ## Configuration
 
