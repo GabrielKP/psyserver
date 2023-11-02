@@ -81,7 +81,7 @@ def init_dir():
     """Initializes the directory structure."""
 
     dest_dir = Path.cwd()
-    source_dir = Path(__file__).parent.parent / "example"
+    source_dir = Path(__file__).parent / "example"
 
     shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
 
