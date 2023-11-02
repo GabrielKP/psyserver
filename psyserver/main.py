@@ -68,7 +68,7 @@ async def save_data_csv(study: str, study_data: StudyDataCsv):
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    now = str(datetime.now())[:19].replace(":", "-")
+    now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
     filepath = os.path.join(data_dir, f"{id}_{now}.csv")
 
     fieldnames = fieldnames or trialdata[0].keys()
@@ -82,7 +82,7 @@ async def save_data_csv(study: str, study_data: StudyDataCsv):
             error_msg = f"Trialdata contains non-specified key: {err}"
             return HTTPException(status_code=422, detail=error_msg)
 
-    return {"status": "saved"}
+    return {"success": True}
 
 
 @app.post("/{study}/save")
@@ -97,12 +97,12 @@ async def save_data(
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    now = str(datetime.now())[:19].replace(":", "-")
+    now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
     filepath = os.path.join(data_dir, f"{id}_{now}.json")
 
     with open(filepath, "w") as f_out:
         json.dump(dict(study_data), f_out)
-    return {"status": "saved"}
+    return {"success": True}
 
 
 @app.get("/favicon.ico", include_in_schema=False)
