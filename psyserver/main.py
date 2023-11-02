@@ -19,7 +19,7 @@ class StudyData(BaseModel, extra="allow"):
 
 class StudyDataCsv(BaseModel):
     id: str
-    trialdata: List[Dict] | None = None
+    trialdata: List[Dict]
     fieldnames: List[str] | None = None
 
 
@@ -27,7 +27,7 @@ app = FastAPI()
 
 
 @app.post("/{study}/save/csv")
-async def save_data(study: str, study_data: StudyDataCsv):
+async def save_data_csv(study: str, study_data: StudyDataCsv):
     id = study_data.id
     trialdata = study_data.trialdata
     fieldnames = study_data.fieldnames
@@ -75,6 +75,4 @@ async def save_data(
 
 settings = get_settings_toml()
 
-app.mount(
-    "/", StaticFiles(directory=settings.studies_dir, html=True), name="exp1"
-)
+app.mount("/", StaticFiles(directory=settings.studies_dir, html=True), name="exp1")
