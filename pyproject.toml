@@ -29,6 +29,7 @@ dev = [
     "pytest",
     "httpx",
     "coverage",
+    "flit",
 ]
 
 [tool.pytest.ini_options]
