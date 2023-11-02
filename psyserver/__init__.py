@@ -1,4 +1,5 @@
 import argparse
+import shutil
 import tomllib
 from functools import lru_cache
 from pathlib import Path
@@ -36,29 +37,25 @@ def main():
 
     # config command
     parser_config = subparsers.add_parser(
-        "config", help="create an example configuration file"
+        "init", help="create an example psyserver directory"
     )
-    parser_config.add_argument(
-        "--config",
-        type=str,
-        default=None,
-        help="path for configuration file.",
-    )
-    parser_config.set_defaults(func=save_example_config)
+    parser_config.set_defaults(func=init_dir)
 
     # parse arguments
     args = parser.parse_args()
 
     # run command
+    if args.func == init_dir:
+        return args.func()
     args.func(config_path=args.config)
 
 
-def default_config_path():
+def default_config_path() -> Path:
     return Path.cwd() / DEFAULT_CONFIG_NAME
 
 
 @lru_cache()
-def get_settings_toml(config_path: str | None = None):
+def get_settings_toml(config_path: str | Path | None = None):
     """Returns the settings from the given config.
 
     Parameters
@@ -76,41 +73,20 @@ def get_settings_toml(config_path: str | None = None):
     return Settings(**config["psyserver"])
 
 
-def save_example_config(config_path: str | None = None):
-    """Returns an example configuration into the given path.
+def init_dir():
+    """Initializes the directory structure."""
 
-    Parameters
-    ----------
-    config_path : str | None, default = `None`
-        Path to a configuration file. If `None`, then configuration in
-        the current directory is used.
-    """
+    dest_dir = Path.cwd()
+    source_dir = Path(__file__).parent.parent / "example"
 
-    if config_path is None:
-        config_path = default_config_path()
+    shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
 
-    example_config_str = """title = "psyserver config"
-
-[psyserver]
-studies_dir = "studies"
-data_dir = "data"
-
-[uvicorn]
-host = "127.0.0.1"
-port = 5000
-log_level = "info"
-"""
-
-    if config_path is None:
-        config_path = default_config_path()
-    with open(config_path, "w") as configfile:
-        configfile.write(example_config_str)
-    print(f"Saved example configuration to {config_path}")
+    print(f"Initialized example server to {dest_dir}.")
 
     return 0
 
 
-def run(config_path: str | None = None):
+def run(config_path: str | Path | None = None):
     """Runs the server given config.
 
     Parameters

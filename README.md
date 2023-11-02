@@ -12,8 +12,12 @@ conda activate psyserver
 # 2. install package
 pip install psyserver
 
-# 3. create example config
-psyserver config
+# 3. create psyserver folder
+mkdir server
+cd server
+
+# 3. create example config/structure
+psyserver init
 
 # 4. configure server
 # open psyserver.toml with your editor of choice, e.g. vim
