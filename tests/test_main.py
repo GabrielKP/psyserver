@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open, Mock
 
 from fastapi.testclient import TestClient
 
-os.chdir("example")
+os.chdir("psyserver/example")
 
 from psyserver.main import app
 
