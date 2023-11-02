@@ -23,3 +23,9 @@ Home = "https://github.com/GabrielKP/psyserver"
 
 [project.scripts]
 psyserver = "psyserver:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "httpx",
+]
