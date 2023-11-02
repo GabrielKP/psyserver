@@ -6,6 +6,7 @@ from typing import Union, Dict, List
 from typing_extensions import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -53,6 +54,8 @@ class StudyDataCsv(BaseModel):
 
 
 app = FastAPI()
+
+settings = get_settings_toml()
 
 
 @app.post("/{study}/save/csv")
@@ -102,6 +105,10 @@ async def save_data(
     return {"status": "saved"}
 
 
-settings = get_settings_toml()
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("favicon.ico")
 
+
+# studies
 app.mount("/", StaticFiles(directory=settings.studies_dir, html=True), name="exp1")
