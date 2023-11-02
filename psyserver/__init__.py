@@ -13,6 +13,7 @@ DEFAULT_CONFIG_NAME = "psyserver.toml"
 class Settings(BaseSettings):
     studies_dir: str = "studies"
     data_dir: str = "data"
+    redirect_url: str = "https://www.example.com"
 
 
 def main():

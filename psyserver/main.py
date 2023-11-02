@@ -6,7 +6,7 @@ from typing import Union, Dict, List
 from typing_extensions import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -112,3 +112,8 @@ async def favicon():
 
 # studies
 app.mount("/", StaticFiles(directory=settings.studies_dir, html=True), name="exp1")
+
+
+@app.exception_handler(404)
+async def custom_404_handler(_, __):
+    return RedirectResponse(settings.redirect_url)
