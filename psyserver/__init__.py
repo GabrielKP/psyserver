@@ -10,7 +10,7 @@ from pydantic_settings import BaseSettings
 DEFAULT_CONFIG_NAME = "psyserver.toml"
 
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 class Settings(BaseSettings):

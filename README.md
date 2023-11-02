@@ -65,13 +65,13 @@ Systemd
 
 ## Configuration
 
-The server is configured in the file `psyserver.toml`.
-This file has to be in the directory from which you call `psyserver run`.
+`psyserver.toml` configures the server.
+This file has to be in the directory from which `psyserver run` is called.
 
 The configuration has two groups:
 
-1. psyserver
-2. uvicorn
+1. psyserver: all PsyServer configuratons
+2. uvicorn: Uvicorn configurations
 
 ### psyserver config
 
@@ -79,12 +79,12 @@ The configuration has two groups:
 [psyserver]
 studies_dir = "studies"
 data_dir = "data"
+redirect_url = "https://www.example.com"
 ```
-
-Here you can configure following fields:
 
 - `studies_dir`: path to directory which contains studies. Any directory inside will be reachable via the url. E.g. a study in `<studies_dir>/exp_cute/index.html` will have the url `<host>:<port>/exp_cute/index.html`.
 - `data_dir`: directory in which study data is saved. E.g. data submissions to the url `<host>:<port>/exp_cute/save` will be saved in `<data_dir>/exp_cute/`. Has to be different from `studies_dir`.
+- `redirect_url`: Visitors will be redirected to this url when accessing routes that are not found.
 
 ### uvicorn config
 
@@ -92,19 +92,16 @@ Here you can configure following fields:
 [uvicorn]
 host = "127.0.0.1"
 port = 5000
-log_level = "info"
 ```
 
-This configures the uvicorn instance runnning the server. You can specify the `host`, `port` and https.
-For all possible keys, go to the [uvicorn settings documentation](https://www.uvicorn.org/settings/).
+Here configures the uvicorn instance runnning the server. For example, uou can specify the `host`, `port` and https configurations.
+For all possible options, use the commands in the [uvicorn settings documentation](https://www.uvicorn.org/settings/) without `--`.
 
 ## How to save data to psyserver
 
-Participant data sent to the server needs to adhere to a certain format.
-
-We recommend using jquery to post the data.
-
-Generally, data is sent to `/<study>/save`.
+To save participant data to the server it has to be sent in the json format of a POST request.
+The POST request can be made to `/<study>/save` which saves data as a json file, or `/<study>/save/csv` which save data as a csv file.
+Upon succesful saving, a json object `{success: true}` is returned.
 
 ### Save as json
 

@@ -3,11 +3,11 @@ name = "psyserver"
 authors = [
     {name = "Gabriel Kressin Palacios", email = "gabriel.kressin@homtail.de"},
 ]
-description = "A server to host studies and host study data."
+description = "A server to host your online studies on."
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 license = {"file" = "LICENSE"}
-keywords = ["psychology", "server", "study", "data", "experiment"]
+keywords = ["experiments", "studies", "behavioral", "online", "server"]
 dependencies = [
     "fastapi[all]>=0.104.0,<0.105.0",
     "uvicorn[standard]>=0.23.0,<0.24.0",
