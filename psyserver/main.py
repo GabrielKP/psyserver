@@ -16,11 +16,40 @@ from psyserver import Settings, get_settings_toml
 class StudyData(BaseModel, extra="allow"):
     id: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": "debug_1",
+                    "condition": "1",
+                    "experiment1": [2, 59, 121, 256],
+                    "experiment2": ["yes", "maybe", "yes"],
+                }
+            ]
+        }
+    }
+
 
 class StudyDataCsv(BaseModel):
     id: str
     trialdata: List[Dict]
     fieldnames: List[str] | None = None
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": "debug_1",
+                    "trialdata": [
+                        {"trial": 1, "condition": "1", "response": 2},
+                        {"trial": 2, "condition": "1", "response": 59},
+                        {"trial": 3, "condition": "1", "response": 121},
+                        {"trial": 4, "condition": "1", "response": 256},
+                    ],
+                }
+            ]
+        }
+    }
 
 
 app = FastAPI()
