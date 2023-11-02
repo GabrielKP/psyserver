@@ -17,22 +17,22 @@ const DATA = {
       animal: "sheep",
       imageID: "sheep_2",
     },
-    // {
-    //   animal: "sheep",
-    //   imageID: "sheep_3",
-    // },
-    // {
-    //   animal: "goat",
-    //   imageID: "goat_1",
-    // },
-    // {
-    //   animal: "goat",
-    //   imageID: "goat_2",
-    // },
-    // {
-    //   animal: "goat",
-    //   imageID: "goat_3",
-    // },
+    {
+      animal: "sheep",
+      imageID: "sheep_3",
+    },
+    {
+      animal: "goat",
+      imageID: "goat_1",
+    },
+    {
+      animal: "goat",
+      imageID: "goat_2",
+    },
+    {
+      animal: "goat",
+      imageID: "goat_3",
+    },
   ],
   trialIndex: -1,
   startTime: Date.now(), // milliseconds since UNIX epoch
@@ -104,8 +104,7 @@ function beginTrial() {
     DATA.endTime = Date.now();
     DATA.duration = performance.now();
     DATA.id = DATA.prolificPID;
-    console.log(DATA);
-    console.log("saving data");
+    console.debug("saving data");
     // post data to server
     $.ajax({
       url: "save",
