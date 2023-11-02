@@ -1,10 +1,17 @@
 [project]
 name = "psyserver"
+authors = [
+    {name = "Gabriel Kressin Palacios", email = "gabriel.kressin@homtail.de"},
+]
 version = "0.1.0"
-description = "Plotboard server side application: upload plotly plots to a website."
+description = "A server to host studies and host study data."
+readme="README.md
+requires-python=">=3.11,<3.12"
+license="LICENSE"
+keywords=["psychology", "server", "study", "data", "experiment"]
 dependencies = [
-    "fastapi[all]",
-    "uvicorn[standard]",
+    "fastapi[all]>=0.104.0,<0.105.0",
+    "uvicorn[standard]>=0.23.0,<0.24.0",
 ]
 
 [build-system]
