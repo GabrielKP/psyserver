@@ -184,7 +184,9 @@ trial,time,correct,extra
 3,120237831,true,
 ```
 
-## Development setup
+## Development
+
+### Setup
 
 ```sh
 # 1. set up conda environment
@@ -197,4 +199,16 @@ cd psyserver
 
 # 3. install in editor mode
 pip install -e .
+```
+
+### Testing
+
+```sh
+# normal test
+pytest . -v
+
+# coverage
+coverage run -m pytest
+# html report
+coverage html
 ```

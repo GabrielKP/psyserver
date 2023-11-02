@@ -5,10 +5,10 @@ authors = [
 ]
 version = "0.1.0"
 description = "A server to host studies and host study data."
-readme="README.md
-requires-python=">=3.11,<3.12"
-license="LICENSE"
-keywords=["psychology", "server", "study", "data", "experiment"]
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = {"file" = "LICENSE"}
+keywords = ["psychology", "server", "study", "data", "experiment"]
 dependencies = [
     "fastapi[all]>=0.104.0,<0.105.0",
     "uvicorn[standard]>=0.23.0,<0.24.0",
@@ -28,4 +28,12 @@ psyserver = "psyserver:main"
 dev = [
     "pytest",
     "httpx",
+    "coverage",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["psyserver"]
