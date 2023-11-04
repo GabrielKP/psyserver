@@ -1,4 +1,5 @@
 import tomllib
+import os
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 from pathlib import Path
@@ -18,18 +19,10 @@ def default_config_path() -> Path:
 
 
 @lru_cache()
-def get_settings_toml(config_path: str | Path | None = None):
-    """Returns the settings from the given config.
+def get_settings_toml():
+    """Returns the settings from the given config."""
 
-    Parameters
-    ----------
-    config_path : str | None, default = `None`
-        Path to a configuration file. If `None`, then configuration in
-        the current directory is used.
-    """
-
-    if config_path is None:
-        config_path = default_config_path()
+    config_path = os.environ.get("CONFIG_PATH", default_config_path())
     with open(config_path, "rb") as configfile:
         config = tomllib.load(configfile)
 

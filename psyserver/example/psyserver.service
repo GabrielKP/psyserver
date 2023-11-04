@@ -5,7 +5,7 @@ Description=PsyServer Service.
 # pyseserver init will place real paths here
 ExecStart=/path/to/python /path/to/psyserver run
 Environment=PYTHONUNBUFFERED=1
-Environment=config_path
+Environment=CONFIG_PATH=config_path
 Restart=on-failure
 
 [Install]

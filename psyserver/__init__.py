@@ -4,7 +4,7 @@ from psyserver.run import run_server
 from psyserver.init import init_dir
 
 
-__version__ = "0.2.4"
+__version__ = "0.2.5"
 
 
 def main():

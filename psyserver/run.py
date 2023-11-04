@@ -1,4 +1,5 @@
 import tomllib
+import os
 from pathlib import Path
 
 import uvicorn
@@ -16,7 +17,7 @@ def run_server():
         the current directory is used.
     """
 
-    config_path = default_config_path()
+    config_path = os.environ.get("CONFIG_PATH", default_config_path())
     with open(config_path, "rb") as configfile:
         config = tomllib.load(configfile)
 
