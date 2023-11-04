@@ -21,7 +21,7 @@ def replace_paths_unit_file(project_dir: Path):
     return 0
 
 
-def init_dir():
+def init_dir(no_unit_file: bool = False):
     """Initializes the directory structure."""
 
     dest_dir = Path.cwd()
@@ -32,5 +32,11 @@ def init_dir():
     replace_paths_unit_file(dest_dir)
 
     print(f"Initialized example server to {dest_dir}.")
+
+    if not no_unit_file:
+        unit_file_source = dest_dir / "psyserver.service"
+        unit_file_dest = Path.home() / ".config/systemd/user/psyserver.service"
+        shutil.copy(unit_file_source, unit_file_dest)
+        print(f"Placed unit file in {unit_file_dest}.")
 
     return 0

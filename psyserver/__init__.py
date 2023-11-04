@@ -31,6 +31,12 @@ def main():
     parser_config = subparsers.add_parser(
         "init", help="create an example psyserver directory"
     )
+    parser_config.add_argument(
+        "--no-unit-file",
+        type=str,
+        action="store_true",
+        help="do not place the unit file in ~/.config/systemd/user/",
+    )
     parser_config.set_defaults(func=init_dir)
 
     # parse arguments
@@ -38,7 +44,7 @@ def main():
 
     # run command
     if args.func == init_dir:
-        return args.func()
+        return args.func(no_unit_file=args.no_unit_file)
     args.func(config_path=args.config)
 
 
