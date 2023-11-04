@@ -4,7 +4,7 @@ from psyserver.run import run_server
 from psyserver.init import init_dir
 
 
-__version__ = "0.2.5"
+__version__ = "0.2.6"
 
 
 def main():
@@ -20,6 +20,12 @@ def main():
     # run command
     parser_run = subparsers.add_parser("run", help="run the server")
     parser_run.set_defaults(func=run_server)
+    parser_run.add_argument(
+        "psyserver_dir",
+        nargs="?",
+        default=None,
+        help="path to the psyserver directory with config files.",
+    )
 
     # config command
     parser_config = subparsers.add_parser(
@@ -38,7 +44,7 @@ def main():
     # run command
     if args.func == init_dir:
         return args.func(no_unit_file=args.no_unit_file)
-    args.func()
+    args.func(psyserver_dir=args.psyserver_dir)
 
 
 if __name__ == "__main__":

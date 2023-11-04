@@ -3,7 +3,7 @@ title = "psyserver config"
 [psyserver]
 studies_dir = "studies"
 data_dir = "data"
-redirect_url = "https://www.example.com"
+
 
 [uvicorn]
 host = "127.0.0.1"

@@ -13,6 +13,10 @@ from pydantic import BaseModel
 
 from psyserver.settings import Settings, get_settings_toml
 
+NOT_FOUND_HTML = """\
+<div style="display:flex;flex-direction:column;justify-content:center;text-align:center;"><h1>404 - Not Found</h1></div>
+"""
+
 
 class StudyData(BaseModel, extra="allow"):
     id: str
@@ -113,6 +117,6 @@ def create_app() -> FastAPI:
     async def custom_404_handler(_, __):
         if settings.redirect_url is not None:
             return RedirectResponse(settings.redirect_url)
-        return HTMLResponse("<h1>404 - Not Found</h1>")
+        return HTMLResponse(NOT_FOUND_HTML)
 
     return app

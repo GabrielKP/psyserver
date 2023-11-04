@@ -7,17 +7,19 @@ import uvicorn
 from psyserver.settings import default_config_path
 
 
-def run_server():
+def run_server(psyserver_dir: Path | str | None = None):
     """Runs the server given config.
 
     Parameters
     ----------
-    config_path : str | None, default = `None`
+    pyserver_dir : str | None, default = `None`
         Path to a configuration file. If `None`, then configuration in
         the current directory is used.
     """
 
-    config_path = os.environ.get("CONFIG_PATH", default_config_path())
+    psyserver_dir = Path(psyserver_dir or Path.cwd())
+    os.chdir(psyserver_dir)
+    config_path = default_config_path()
     with open(config_path, "rb") as configfile:
         config = tomllib.load(configfile)
 

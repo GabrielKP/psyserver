@@ -11,7 +11,7 @@ DEFAULT_CONFIG_NAME = "psyserver.toml"
 class Settings(BaseSettings):
     studies_dir: str = "studies"
     data_dir: str = "data"
-    redirect_url: str | None = "https://www.example.com"
+    redirect_url: str | None = None
 
 
 def default_config_path() -> Path:
@@ -22,7 +22,7 @@ def default_config_path() -> Path:
 def get_settings_toml():
     """Returns the settings from the given config."""
 
-    config_path = os.environ.get("CONFIG_PATH", default_config_path())
+    config_path = default_config_path()
     with open(config_path, "rb") as configfile:
         config = tomllib.load(configfile)
 
