@@ -4,7 +4,7 @@ from .run import run_server
 from .init import init_dir
 
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 
 def main():
@@ -33,7 +33,6 @@ def main():
     )
     parser_config.add_argument(
         "--no-unit-file",
-        type=str,
         action="store_true",
         help="do not place the unit file in ~/.config/systemd/user/",
     )
