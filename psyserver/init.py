@@ -1,5 +1,6 @@
 import shutil
 import sys
+import platform
 from pathlib import Path
 
 
@@ -12,8 +13,10 @@ def replace_paths_unit_file(project_dir: Path):
 
     python_path = sys.executable
     script_path = str(Path(__file__).parent)
+    config_path = str(project_dir / "psyserver.toml")
     unit_file = unit_file.replace("/path/to/python", python_path)
     unit_file = unit_file.replace("/path/to/psyserver", script_path)
+    unit_file = unit_file.replace("config_path", config_path)
 
     with open(unit_file_path, "w") as f_unit_file:
         f_unit_file.write(unit_file)
@@ -33,7 +36,7 @@ def init_dir(no_unit_file: bool = False):
 
     print(f"Initialized example server to {dest_dir}.")
 
-    if not no_unit_file:
+    if platform.system() == "Linux" and not no_unit_file:
         unit_file_source = dest_dir / "psyserver.service"
         unit_file_dest = Path.home() / ".config/systemd/user/psyserver.service"
         shutil.copy(unit_file_source, unit_file_dest)

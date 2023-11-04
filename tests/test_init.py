@@ -19,3 +19,4 @@ def test_init_command():
 
         assert "/path/to/python" not in unit_file
         assert "/path/to/psyserver" not in unit_file
+        assert "config_path" not in unit_file

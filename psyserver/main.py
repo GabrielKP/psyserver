@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 
-from .settings import Settings, get_settings_toml
+from psyserver.settings import Settings, get_settings_toml
 
 
 class StudyData(BaseModel, extra="allow"):
