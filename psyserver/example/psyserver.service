@@ -1,0 +1,12 @@
+[Unit]
+Description=Online Study hosting server.
+
+[Service]
+# pyseserver init will place real paths here
+ExecStart=/path/to/python /path/to/psyserver.py
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+

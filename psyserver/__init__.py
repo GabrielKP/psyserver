@@ -1,22 +1,11 @@
 import argparse
-import shutil
-import tomllib
-from functools import lru_cache
 from pathlib import Path
 
-import uvicorn
-from pydantic_settings import BaseSettings
-
-DEFAULT_CONFIG_NAME = "psyserver.toml"
+from .run import run_server
+from .init import init_dir
 
 
-__version__ = "0.1.2"
-
-
-class Settings(BaseSettings):
-    studies_dir: str = "studies"
-    data_dir: str = "data"
-    redirect_url: str = "https://www.example.com"
+__version__ = "0.2.0"
 
 
 def main():
@@ -37,7 +26,7 @@ def main():
         default=None,
         help="path to a configuration file.",
     )
-    parser_run.set_defaults(func=run)
+    parser_run.set_defaults(func=run_server)
 
     # config command
     parser_config = subparsers.add_parser(
@@ -54,57 +43,5 @@ def main():
     args.func(config_path=args.config)
 
 
-def default_config_path() -> Path:
-    return Path.cwd() / DEFAULT_CONFIG_NAME
-
-
-@lru_cache()
-def get_settings_toml(config_path: str | Path | None = None):
-    """Returns the settings from the given config.
-
-    Parameters
-    ----------
-    config_path : str | None, default = `None`
-        Path to a configuration file. If `None`, then configuration in
-        the current directory is used.
-    """
-
-    if config_path is None:
-        config_path = default_config_path()
-    with open(config_path, "rb") as configfile:
-        config = tomllib.load(configfile)
-
-    return Settings(**config["psyserver"])
-
-
-def init_dir():
-    """Initializes the directory structure."""
-
-    dest_dir = Path.cwd()
-    source_dir = Path(__file__).parent / "example"
-
-    shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
-
-    print(f"Initialized example server to {dest_dir}.")
-
-    return 0
-
-
-def run(config_path: str | Path | None = None):
-    """Runs the server given config.
-
-    Parameters
-    ----------
-    config_path : str | None, default = `None`
-        Path to a configuration file. If `None`, then configuration in
-        the current directory is used.
-    """
-
-    if config_path is None:
-        config_path = default_config_path()
-    with open(config_path, "rb") as configfile:
-        config = tomllib.load(configfile)
-
-    uvicorn_config = uvicorn.Config("psyserver.main:app", **config["uvicorn"])
-    server = uvicorn.Server(uvicorn_config)
-    server.run()
+if __name__ == "__main__":
+    main()
