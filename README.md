@@ -26,14 +26,18 @@ To setup a fully functional server to host studies on, you will require followin
 
 ### Host machine
 
+A host machine to run the server on will be required. It is highly recommended it is a linux machine.
+For example, you can set up an [aws ec2 instance](https://aws.amazon.com/ec2/) for little cost.
+
 ### PsyServer Setup
 
-PsyServer comes as a python package, meaning that installing it is as easy as installing a python package!
+PsyServer comes as a python package: installing it is as easy as installing a python package.
+At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html).
 
 ```sh
 # 1. create psyserver folder
-mkdir server
-cd server
+mkdir psyserver
+cd psyserver
 
 # 2. set up conda environment (optional)
 conda create -n psyserver python=3.11
@@ -53,15 +57,78 @@ vim psyserver.toml
 psyserver run
 ```
 
-### Domain Name
-
-### HTTPS
-
-To setup up a https server, you can use a reverse proxy or setup the uvicorn instance running
-
 ### Running setup
 
-Systemd
+Although you could just run psyserver as background job in your console, that would come at the disadvantage that when the server crashes or restarts, psyserver will not be restarted automatically.
+Thus it is recommended to [setup PsyServer as systemd service](https://github.com/torfsen/python-systemd-tutorial).
+
+The `psyserver init` command automatically places a unitfile at `~/.config/systemd/user/psyserver.service`. That means you can just start and enable the service:
+
+Reload systemctl.
+
+```sh
+$ systemctl --user daemon-reload
+```
+
+Start the service.
+
+```sh
+$ systemctl --user start psyserver
+```
+
+Check on the service (leave with `Q`).
+
+```sh
+$ systemctl --user status psyserver
+● psyserver.service - PsyServer Service.
+     Loaded: loaded (/home/ubuntu/.config/systemd/user/psyserver.service; disabled; vendor preset: enabled)
+     Active: active (running)
+```
+
+Enable the server for autostart.
+
+```sh
+$ systemctl --user enable psyserver
+```
+
+For stopping and disabling use:
+
+```sh
+$ systemctl --user stop psyserver
+$ systemctl --user disable psyserver
+```
+
+### Domain Name
+
+Using a domain name is recommended, but operation is possible without. Domains can be acquired at websites such as [namecheap](https://www.namecheap.com/).
+You will require a domain if you want to use https.
+
+### https
+
+https ensure safe communication between participants and your server. It is highly recommend to set up https.
+Setting up https yourself can be quite tricky, it is thus recommended to use Caddy as Reverse Proxy.
+A reverse proxy is another application running on your machine which handles the connections from the internet to a server, in this case PsyServer.
+
+1. [Install Caddy](https://caddyserver.com/docs/install#debian-ubuntu-raspbian)
+2. [Setup up the Caddy Service](https://caddyserver.com/docs/running#using-the-service)
+3. [Setup Caddy as reverse Proxy](https://caddyserver.com/docs/quick-starts/reverse-proxy)
+
+You can use this Caddyfile with the default configuration of PsyServer.
+
+```Caddyfile
+example.com
+{
+  reverse_proxy :5000
+}
+```
+
+Replace `example.com` with your `domain`.
+
+Reload Caddy `sudo systemctl reload caddy`.
+
+That's it!
+
+You can also setup uvicorn directly to handle https ([uvicorn https documentation](https://www.uvicorn.org/deployment/#running-with-https)). Settings are set in `psyserver.toml` under `[uvicorn]` with exactly the same keys as the documentation, without the `--`.
 
 ## Configuration
 
@@ -84,7 +151,7 @@ redirect_url = "https://www.example.com"
 
 - `studies_dir`: path to directory which contains studies. Any directory inside will be reachable via the url. E.g. a study in `<studies_dir>/exp_cute/index.html` will have the url `<host>:<port>/exp_cute/index.html`.
 - `data_dir`: directory in which study data is saved. E.g. data submissions to the url `<host>:<port>/exp_cute/save` will be saved in `<data_dir>/exp_cute/`. Has to be different from `studies_dir`.
-- `redirect_url`: Visitors will be redirected to this url when accessing routes that are not found.
+- `redirect_url`: Visitors will be redirected to this url when accessing routes that are not found. Without this key, a 404 - Not found html will be displayed.
 
 ### uvicorn config
 
