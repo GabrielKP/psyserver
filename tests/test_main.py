@@ -2,31 +2,25 @@ import os
 import json
 from unittest.mock import patch, mock_open, Mock
 
-from fastapi.testclient import TestClient
 
-os.chdir("psyserver/example")
-
-from psyserver.main import app
-
-client = TestClient(app)
-
-
-def test_exp_cute_index():
-    response = client.get("/exp_cute/")
-    assert response.status_code == 200
-    assert (
-        response.text[:100]
-        == """<!DOCTYPE html>
+cute_exp_html_start = """\
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>How cute?</title>
   </head>
 """
-    )
 
 
-def test_save_data_json():
+def test_exp_cute_index(client):
+    response = client.get("/exp_cute/")
+    assert response.status_code == 200
+    assert response.text[:100] == cute_exp_html_start
+
+
+def test_save_data_json(client):
+    print("hello?")
     example_data = {
         "id": "debug_1",
         "condition": "1",
@@ -50,7 +44,7 @@ def test_save_data_json():
     )
 
 
-def test_save_data_json_fail():
+def test_save_data_json_fail(client):
     example_data = {
         "participant_id": "debug_1",
         "condition": "1",
@@ -63,7 +57,15 @@ def test_save_data_json_fail():
     assert res_json["detail"][0]["loc"] == ["body", "id"]
 
 
-def test_save_data_csv():
+example_csv_file = """\
+trial,time,correct\r
+1,120230121,True\r
+2,120234001,False\r
+3,120237831,True\r
+"""
+
+
+def test_save_data_csv(client):
     example_data = {
         "id": "debug_1",
         "trialdata": [
@@ -84,19 +86,13 @@ def test_save_data_csv():
     written_data = "".join(
         [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
     )
-    assert (
-        written_data
-        == """trial,time,correct\r
-1,120230121,True\r
-2,120234001,False\r
-3,120237831,True\r\n"""
-    )
+    assert written_data == example_csv_file
     mock_open_exp_data.assert_called_once_with(
         "data/exp_cute/debug_1_2023-11-02_01-49-39.csv", "w"
     )
 
 
-def test_save_data_csv_fail():
+def test_save_data_csv_fail(client):
     example_data = {
         "id": "debug_1",
         "condition": "1",

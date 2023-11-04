@@ -1,0 +1,12 @@
+[Unit]
+Description=PsyServer Service.
+
+[Service]
+# pyseserver init will place real paths here
+ExecStart=/path/to/python /path/to/psyserver_package run /path/to/psyserver_dir
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+
