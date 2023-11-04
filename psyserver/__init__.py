@@ -1,11 +1,10 @@
 import argparse
-from pathlib import Path
 
 from .run import run_server
 from .init import init_dir
 
 
-__version__ = "0.2.0"
+__version__ = "0.2.0+dev.1"
 
 
 def main():
