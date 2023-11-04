@@ -4,7 +4,7 @@ from .run import run_server
 from .init import init_dir
 
 
-__version__ = "0.2.0+dev.1"
+__version__ = "0.2.1"
 
 
 def main():
