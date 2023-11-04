@@ -14,7 +14,7 @@ def replace_paths_unit_file(project_dir: Path):
     python_path = sys.executable
     script_path = str(Path(__file__).parent)
     unit_file = unit_file.replace("/path/to/python", python_path)
-    unit_file = unit_file.replace("/path/to/psyserver", script_path)
+    unit_file = unit_file.replace("/path/to/psyserver_package", script_path)
     unit_file = unit_file.replace("/path/to/psyserver_dir", str(project_dir))
 
     with open(unit_file_path, "w") as f_unit_file:
