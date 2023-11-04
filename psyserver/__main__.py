@@ -1,5 +1,5 @@
 # ths file exists such that package dir can be called.
 
-from . import main
+from psyserver import main
 
 main()

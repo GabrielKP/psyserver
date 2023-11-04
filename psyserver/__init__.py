@@ -1,10 +1,10 @@
 import argparse
 
-from .run import run_server
-from .init import init_dir
+from psyserver.run import run_server
+from psyserver.init import init_dir
 
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 
 def main():

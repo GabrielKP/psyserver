@@ -3,7 +3,7 @@ Description=PsyServer Service.
 
 [Service]
 # pyseserver init will place real paths here
-ExecStart=/path/to/python /path/to/psyserver.py
+ExecStart=/path/to/python /path/to/psyserver
 Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 

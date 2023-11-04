@@ -3,7 +3,7 @@ from pathlib import Path
 
 import uvicorn
 
-from .settings import default_config_path
+from psyserver.settings import default_config_path
 
 
 def run_server(config_path: str | Path | None = None):
