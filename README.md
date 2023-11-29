@@ -297,25 +297,31 @@ trial,time,correct,extra
 
 ```sh
 # 1. set up conda environment
-conda create -n psyserver python=3.11
-conda activate psyserver
+$ conda create -n psyserver python=3.11
+$ conda activate psyserver
 
 # 2. clone
-git clone git@github.com:GabrielKP/psyserver.git
-cd psyserver
+$ git clone git@github.com:GabrielKP/psyserver.git
+$ cd psyserver
 
 # 3. install in editor mode
-pip install -e .
+$ pip install -e .
 ```
 
 ### Testing
 
 ```sh
 # normal test
-pytest . -v
+$ pytest . -v
 
 # coverage
-coverage run -m pytest
+$ coverage run -m pytest
 # html report
-coverage html
+$ coverage html
+```
+
+### Publishing
+
+```sh
+$ flit publish
 ```
