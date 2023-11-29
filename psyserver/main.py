@@ -1,15 +1,14 @@
 import csv
-import os
 import json
+import os
 from datetime import datetime
-from typing import Union, Dict, List
-from typing_extensions import Annotated
+from typing import Dict, List, Union
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-
+from typing_extensions import Annotated
 
 from psyserver.settings import Settings, get_settings_toml
 
@@ -62,12 +61,16 @@ def create_app() -> FastAPI:
     settings = get_settings_toml()
 
     @app.post("/{study}/save/csv")
-    async def save_data_csv(study: str, study_data: StudyDataCsv):
+    async def save_data_csv(
+        study: str,
+        study_data: StudyDataCsv,
+        settings: Annotated[Settings, Depends(get_settings_toml)],
+    ):
         id = study_data.id
         trialdata = study_data.trialdata
         fieldnames = study_data.fieldnames
 
-        data_dir = os.path.join("data", study)
+        data_dir = os.path.join(settings.data_dir, study)
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
