@@ -36,25 +36,25 @@ At least python 3.11 is required; it is recommended to use a [virtual environmen
 
 ```sh
 # 1. create psyserver folder
-mkdir psyserver
-cd psyserver
+$ mkdir psyserver
+$ cd psyserver
 
 # 2. set up conda environment (optional)
-conda create -n psyserver python=3.11
-conda activate psyserver
+$ conda create -n psyserver python=3.11
+$ conda activate psyserver
 
 # 3. install package
-pip install psyserver
+$ pip install psyserver
 
 # 4. create example config/structure
-psyserver init
+$ psyserver init
 
 # 5. configure server
 # open psyserver.toml with your editor of choice, e.g. vim
-vim psyserver.toml
+$ vim psyserver.toml
 
 # 6. run server
-psyserver run
+$ psyserver run
 ```
 
 ### Running setup
@@ -62,24 +62,31 @@ psyserver run
 Although you could just run psyserver as background job in your console, that would come at the disadvantage that when the server crashes or restarts, psyserver will not be restarted automatically.
 Thus it is recommended to [setup PsyServer as systemd service](https://github.com/torfsen/python-systemd-tutorial).
 
-The `psyserver init` command automatically places a unitfile at `~/.config/systemd/user/psyserver.service`. That means you can just start and enable the service:
-
-Reload systemctl.
+The `psyserver init` will create the unitfile `psyserver.service` in your directory.
+You need to place that unitfile into a systemd subdirectory:
 
 ```sh
-$ systemctl --user daemon-reload
+$ sudo mv psyserver.service /etc/systemd/system/
+$ sudo chown root:root /etc/systemd/system/psyserver.service
+$ sudo chmod 644 /etc/systemd/system/psyserver.service
+```
+
+Now reload systemctl.
+
+```sh
+$ sudo systemctl daemon-reload
 ```
 
 Start the service.
 
 ```sh
-$ systemctl --user start psyserver
+$ sudo systemctl start psyserver
 ```
 
 Check on the service (leave with `Q`).
 
 ```sh
-$ systemctl --user status psyserver
+$ sudo systemctl status psyserver
 ● psyserver.service - PsyServer Service.
      Loaded: loaded (/home/ubuntu/.config/systemd/user/psyserver.service; disabled; vendor preset: enabled)
      Active: active (running)
@@ -88,14 +95,14 @@ $ systemctl --user status psyserver
 Enable the server for autostart.
 
 ```sh
-$ systemctl --user enable psyserver
+$ sudo systemctl enable psyserver
 ```
 
 For stopping and disabling use:
 
 ```sh
-$ systemctl --user stop psyserver
-$ systemctl --user disable psyserver
+$ sudo systemctl stop psyserver
+$ sudo systemctl disable psyserver
 ```
 
 ### Domain Name

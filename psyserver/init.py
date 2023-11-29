@@ -1,6 +1,5 @@
 import shutil
 import sys
-import platform
 from pathlib import Path
 
 
@@ -34,11 +33,5 @@ def init_dir(no_unit_file: bool = False):
     replace_paths_unit_file(dest_dir)
 
     print(f"Initialized example server to {dest_dir}.")
-
-    if platform.system() == "Linux" and not no_unit_file:
-        unit_file_source = dest_dir / "psyserver.service"
-        unit_file_dest = Path.home() / ".config/systemd/user/psyserver.service"
-        shutil.copy(unit_file_source, unit_file_dest)
-        print(f"Placed unit file in {unit_file_dest}.")
 
     return 0
