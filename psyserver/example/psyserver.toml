@@ -1,8 +1,8 @@
 title = "psyserver config"
 
 [psyserver]
-studies_dir = "studies"
-data_dir = "data"
+studies_dir = "data/studies"
+data_dir = "data/studydata"
 
 
 [uvicorn]
