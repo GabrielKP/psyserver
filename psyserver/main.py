@@ -1,6 +1,8 @@
 import csv
 import json
 import os
+import shutil
+import subprocess
 from datetime import datetime
 from typing import Dict, List, Union
 
@@ -57,6 +59,17 @@ class StudyDataCsv(BaseModel):
 
 
 def create_app() -> FastAPI:
+    # open filebrowser
+    filebrowser_path = shutil.which("filebrowser")
+    if filebrowser_path is None:
+        print("CRITICAL: Filebrowser not found. Please install filebrowser.")
+    else:
+        p_filebrowser = subprocess.Popen(
+            [filebrowser_path, "-c", "filebrowser.toml", "-r", "data"],
+            stdout=subprocess.PIPE,
+        )
+
+    # server
     app = FastAPI()
     settings = get_settings_toml()
 
