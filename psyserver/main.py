@@ -20,7 +20,7 @@ NOT_FOUND_HTML = """\
 
 
 class StudyData(BaseModel, extra="allow"):
-    id: str
+    study_id: str | None = None
 
     model_config = {
         "json_schema_extra": {
@@ -73,54 +73,31 @@ def create_app() -> FastAPI:
     app = FastAPI()
     settings = get_settings_toml()
 
-    @app.post("/{study}/save/csv")
-    async def save_data_csv(
-        study: str,
-        study_data: StudyDataCsv,
-        settings: Annotated[Settings, Depends(get_settings_toml)],
-    ):
-        id = study_data.id
-        trialdata = study_data.trialdata
-        fieldnames = study_data.fieldnames
-
-        data_dir = os.path.join(settings.data_dir, study)
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir)
-
-        now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
-        filepath = os.path.join(data_dir, f"{id}_{now}.csv")
-
-        fieldnames = fieldnames or trialdata[0].keys()
-        with open(filepath, "w") as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            try:
-                for row in trialdata:
-                    writer.writerow(row)
-            except ValueError as err:
-                error_msg = f"Trialdata contains non-specified key: {err}"
-                return HTTPException(status_code=422, detail=error_msg)
-
-        return {"success": True}
-
     @app.post("/{study}/save")
     async def save_data(
         study: str,
         study_data: StudyData,
         settings: Annotated[Settings, Depends(get_settings_toml)],
-    ):
-        id = study_data.id
-
+    ) -> Dict[str, Union[bool, str]]:
+        """Save submitted json object to file."""
+        ret_json: Dict[str, Union[bool, str]] = {"success": True}
         data_dir = os.path.join(settings.data_dir, study)
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
+        study_id = ""
+        if study_data.study_id is not None:
+            study_id = f"{study_data.study_id}_"
+        else:
+            ret_json[
+                "status"
+            ] = "Entry 'study_id' not provided. Saved data only with timestamp."
         now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
-        filepath = os.path.join(data_dir, f"{id}_{now}.json")
+        filepath = os.path.join(data_dir, f"{study_id}{now}.json")
 
         with open(filepath, "w") as f_out:
             json.dump(dict(study_data), f_out)
-        return {"success": True}
+        return ret_json
 
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon():
