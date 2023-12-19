@@ -1,16 +1,16 @@
-import tomllib
 import os
-from pydantic_settings import BaseSettings
+import tomllib
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic_settings import BaseSettings
 
 DEFAULT_CONFIG_NAME = "psyserver.toml"
 
 
 class Settings(BaseSettings):
-    studies_dir: str = "studies"
-    data_dir: str = "data"
+    studies_dir: str = "data/studies"
+    data_dir: str = "data/studydata"
     redirect_url: str | None = None
 
 

@@ -1,6 +1,9 @@
+import getpass
 import shutil
+import subprocess
 import sys
 from pathlib import Path
+from subprocess import CalledProcessError
 
 
 def replace_paths_unit_file(project_dir: Path):
@@ -25,12 +28,56 @@ def replace_paths_unit_file(project_dir: Path):
 def init_dir(no_unit_file: bool = False):
     """Initializes the directory structure."""
 
+    # copy example
     dest_dir = Path.cwd()
     source_dir = Path(__file__).parent / "example"
 
     shutil.copytree(source_dir, dest_dir, dirs_exist_ok=True)
 
+    # replace the paths
     replace_paths_unit_file(dest_dir)
+
+    # init filebrowser
+    filebrowser_path = shutil.which("filebrowser")
+    if filebrowser_path is None:
+        print(
+            "Filebrowser not found. Install it by running: "
+            "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash"
+        )
+    else:
+        print("Initializing filebrowser...")
+        try:
+            subprocess.run(
+                [
+                    filebrowser_path,
+                    "config",
+                    "init",
+                    "-c",
+                    "filebrowser.toml",
+                    "-r",
+                    "data",
+                ],
+                stdout=subprocess.PIPE,
+            ).check_returncode()
+            print("Administrator account:")
+            admin_username = input("Username: ")
+            admin_password = getpass.getpass()
+
+            subprocess.run(
+                [
+                    filebrowser_path,
+                    "users",
+                    "add",
+                    admin_username,
+                    admin_password,
+                    "--perm.admin",
+                ],
+                stdout=subprocess.PIPE,
+            ).check_returncode()
+        except CalledProcessError:
+            print("Error with filebrowser init. Aborting.")
+            # TODO: cleanup failed init attempt.
+            return 1
 
     print(f"Initialized example server to {dest_dir}.")
 

@@ -12,7 +12,25 @@
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-PsyServer is a simple, easy to setup server on which you can host your online studies safely and conveniently without committing to a certain framework to code the experiments. Eliminate the need to put excessive time into setting up backends and servers!
+PsyServer is a simple, easy to setup server on which to host online studies safely and conveniently.
+It does not require you to commit to a certain framework, and eliminate the need to put excessive time into setting up backends and servers.
+
+## Features
+
+PsyServer uses [Filebrowser](https://filebrowser.org/) to enable easy and safe access to the study code, and study data:
+
+![Server data root](imgs/fb_root.png)
+
+Every study placed into the `studies` folder becomes accessible from the internet.
+
+![Experiment in Filebrowser](imgs/fb_exp_cute.png)
+![Experiment available online](imgs/web_exp_cute.png)
+
+Data from the study is saved in the `studydata` folder, which is only accessible via the filebrowser and an account.
+
+Both the studies and studydata folder can easily modified and downloaded from the online interface, eliminating the need for `putty or ssh`.
+
+Filebrowser allows for user management, making collaboration with others easy and convenient.
 
 ## Setup
 
@@ -31,36 +49,40 @@ For example, you can set up an [aws ec2 instance](https://aws.amazon.com/ec2/) f
 
 ### PsyServer Setup
 
-PsyServer comes as a python package: installing it is as easy as installing a python package.
+PsyServer itself comes as a python package and is installed as such.
 At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html).
+For easy access of files, you need to install [filebrowser] in addition.
 
 ```sh
 # 1. create psyserver folder
-$ mkdir psyserver
-$ cd psyserver
+mkdir psyserver
+cd psyserver
 
 # 2. set up conda environment (optional)
-$ conda create -n psyserver python=3.11
-$ conda activate psyserver
+conda create -n psyserver python=3.11
+conda activate psyserver
 
 # 3. install package
-$ pip install psyserver
+pip install psyserver
 
-# 4. create example config/structure
-$ psyserver init
+# 4. install filebrowser
+curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
-# 5. configure server
+# 5. create example config/structure.
+psyserver init
+
+# 6. configure server (optional)
 # open psyserver.toml with your editor of choice, e.g. vim
-$ vim psyserver.toml
+vim psyserver.toml
 
-# 6. run server
-$ psyserver run
+# 7. run server
+psyserver run
 ```
 
 ### Running setup
 
-Although you could just run psyserver as background job in your console, that would come at the disadvantage that when the server crashes or restarts, psyserver will not be restarted automatically.
-Thus it is recommended to [setup PsyServer as systemd service](https://github.com/torfsen/python-systemd-tutorial).
+Although you could just run psyserver as background job in your console, that would come at the disadvantage that when the server crashes or restarts, psyserver will not brestart automatically.
+Thus it is recommended to setup PsyServer as [systemd service](https://github.com/torfsen/python-systemd-tutorial).
 
 The `psyserver init` will create the unitfile `psyserver.service` in your directory.
 You need to place that unitfile into a systemd subdirectory:
@@ -120,12 +142,17 @@ A reverse proxy is another application running on your machine which handles the
 2. [Setup up the Caddy Service](https://caddyserver.com/docs/running#using-the-service)
 3. [Setup Caddy as reverse Proxy](https://caddyserver.com/docs/quick-starts/reverse-proxy)
 
-You can use this Caddyfile with the default configuration of PsyServer.
+Use this Caddyfile with the default configuration of PsyServer.
 
 ```Caddyfile
 example.com
 {
   reverse_proxy :5000
+}
+
+admin.example.com
+{
+  reverse_proxy :5050
 }
 ```
 
