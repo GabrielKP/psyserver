@@ -142,12 +142,17 @@ A reverse proxy is another application running on your machine which handles the
 2. [Setup up the Caddy Service](https://caddyserver.com/docs/running#using-the-service)
 3. [Setup Caddy as reverse Proxy](https://caddyserver.com/docs/quick-starts/reverse-proxy)
 
-You can use this Caddyfile with the default configuration of PsyServer.
+Use this Caddyfile with the default configuration of PsyServer.
 
 ```Caddyfile
 example.com
 {
   reverse_proxy :5000
+}
+
+admin.example.com
+{
+  reverse_proxy :5050
 }
 ```
 

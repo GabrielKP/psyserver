@@ -126,6 +126,43 @@ def create_app() -> FastAPI:
     async def favicon():
         return FileResponse("favicon.ico")
 
+    @app.get("/{study}/get_condition")
+    def get_condition(
+        study: str,
+        settings: Annotated[Settings, Depends(get_settings_toml)],
+    ):
+        filepath = os.path.join(settings.data_dir, study, "conditions.json")
+        if not os.path.exists(filepath):
+            return {"success": False, "status": "no condition config"}
+
+        try:
+            with open(filepath, "r") as f_condition_config_in:
+                conditions: Dict[str | int, int] = json.load(f_condition_config_in)
+                if conditions == {}:
+                    return {"success": False, "status": "no conditions in config"}
+                # find condition with most open spots
+                try:
+                    chosen_condition = sorted(
+                        list(conditions.items()), key=lambda x: -x[1]
+                    )[0][0]
+
+                    # update condition config
+                    conditions[chosen_condition] -= 1
+
+                except IndexError:
+                    return {"success": False, "status": "condition config is invalid"}
+
+            with open(filepath, "w") as f_condition_config_out:
+                # write condition config
+                json.dump(conditions, f_condition_config_out)
+        except json.JSONDecodeError:
+            return {
+                "success": False,
+                "status": "Concurrency limitation in get_condition implementation",
+            }
+
+        return {"success": True, "condition": chosen_condition}
+
     # studies
     app.mount("/", StaticFiles(directory=settings.studies_dir, html=True), name="exp1")
 
