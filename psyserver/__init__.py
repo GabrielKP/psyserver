@@ -3,7 +3,7 @@ import argparse
 from psyserver.init import init_dir
 from psyserver.run import run_server
 
-__version__ = "0.4.2"
+__version__ = "0.4.3"
 
 
 def main():

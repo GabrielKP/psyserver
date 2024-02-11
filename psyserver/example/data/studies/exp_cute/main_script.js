@@ -103,7 +103,7 @@ function beginTrial() {
     // get final data
     DATA.endTime = Date.now();
     DATA.duration = performance.now();
-    DATA.study_id = DATA.prolificPID;
+    DATA.participantID = DATA.prolificPID;
     console.debug("saving data");
     // post data to server
     $.ajax({
