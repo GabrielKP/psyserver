@@ -203,12 +203,12 @@ For all possible options, use the commands in the [uvicorn settings documentatio
 To save participant data to the server it has to be sent in the json format of a POST request.
 The POST request can be made to `/<study>/save` which saves data as a json file, or `/<study>/save/csv` which save data as a csv file.
 Upon succesful saving, a json object `{success: true}` is returned.
-Provide the `study_id` key such that the saved data will be named with the study_id.
+Provide the `participantID` key such that the saved data will be named with the participantID.
 
 ```js
 // example data
 participant_data = {
-  study_id: "debug_1",
+  participantID: "debug_1",
   condition: "1",
   experiment1: [2, 59, 121, 256],
   // ...

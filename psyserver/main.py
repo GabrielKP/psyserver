@@ -20,7 +20,7 @@ NOT_FOUND_HTML = """\
 
 
 class StudyData(BaseModel, extra="allow"):
-    study_id: str | None = None
+    participantID: str | None = None
 
     model_config = {
         "json_schema_extra": {
@@ -85,15 +85,15 @@ def create_app() -> FastAPI:
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
-        study_id = ""
-        if study_data.study_id is not None:
-            study_id = f"{study_data.study_id}_"
+        participantID = ""
+        if study_data.participantID is not None:
+            participantID = f"{study_data.participantID}_"
         else:
-            ret_json[
-                "status"
-            ] = "Entry 'study_id' not provided. Saved data only with timestamp."
+            ret_json["status"] = (
+                "Entry 'participantID' not provided. Saved data only with timestamp."
+            )
         now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
-        filepath = os.path.join(data_dir, f"{study_id}{now}.json")
+        filepath = os.path.join(data_dir, f"{participantID}{now}.json")
 
         with open(filepath, "w") as f_out:
             json.dump(dict(study_data), f_out)
