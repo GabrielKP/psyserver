@@ -50,7 +50,7 @@ For example, you can set up an [aws ec2 instance](https://aws.amazon.com/ec2/) f
 ### PsyServer Setup
 
 PsyServer itself comes as a python package and is installed as such.
-At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html).
+At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) ([miniconda installation guide](https://docs.conda.io/projects/miniconda/en/latest/)).
 For easy access of files, you need to install [filebrowser] in addition.
 
 ```sh
