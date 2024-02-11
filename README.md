@@ -201,7 +201,7 @@ For all possible options, use the commands in the [uvicorn settings documentatio
 ## How to save data to psyserver
 
 To save participant data to the server it has to be sent in the json format of a POST request.
-The POST request can be made to `/<study>/save` which saves data as a json file, or `/<study>/save/csv` which save data as a csv file.
+The POST request can be made to `/<study>/save` which saves data as a json file.
 Upon succesful saving, a json object `{success: true}` is returned.
 Provide the `participantID` key such that the saved data will be named with the participantID.
 

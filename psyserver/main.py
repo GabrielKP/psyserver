@@ -26,7 +26,7 @@ class StudyData(BaseModel, extra="allow"):
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": "debug_1",
+                    "participantID": "debug_1",
                     "condition": "1",
                     "experiment1": [2, 59, 121, 256],
                     "experiment2": ["yes", "maybe", "yes"],
@@ -37,7 +37,7 @@ class StudyData(BaseModel, extra="allow"):
 
 
 class StudyDataCsv(BaseModel):
-    id: str
+    participantID: str
     trialdata: List[Dict]
     fieldnames: List[str] | None = None
 
@@ -45,7 +45,7 @@ class StudyDataCsv(BaseModel):
         "json_schema_extra": {
             "examples": [
                 {
-                    "id": "debug_1",
+                    "participantID": "debug_1",
                     "trialdata": [
                         {"trial": 1, "condition": "1", "response": 2},
                         {"trial": 2, "condition": "1", "response": 59},
@@ -88,15 +88,18 @@ def create_app() -> FastAPI:
         participantID = ""
         if study_data.participantID is not None:
             participantID = f"{study_data.participantID}_"
+            study_data_to_save = dict(study_data)
         else:
             ret_json["status"] = (
                 "Entry 'participantID' not provided. Saved data only with timestamp."
             )
+            study_data_to_save = dict(study_data)
+            study_data_to_save.pop("participantID")
         now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
         filepath = os.path.join(data_dir, f"{participantID}{now}.json")
 
         with open(filepath, "w") as f_out:
-            json.dump(dict(study_data), f_out)
+            json.dump(study_data_to_save, f_out)
         return ret_json
 
     @app.get("/favicon.ico", include_in_schema=False)

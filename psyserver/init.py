@@ -25,7 +25,7 @@ def replace_paths_unit_file(project_dir: Path):
     return 0
 
 
-def init_dir(no_unit_file: bool = False):
+def init_dir(no_filebrowser: bool = False):
     """Initializes the directory structure."""
 
     # copy example
@@ -44,6 +44,8 @@ def init_dir(no_unit_file: bool = False):
             "Filebrowser not found. Install it by running: "
             "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash"
         )
+    elif no_filebrowser:
+        print("Skipping filebrowser initialization.")
     else:
         print("Initializing filebrowser...")
         try:
