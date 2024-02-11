@@ -50,7 +50,7 @@ For example, you can set up an [aws ec2 instance](https://aws.amazon.com/ec2/) f
 ### PsyServer Setup
 
 PsyServer itself comes as a python package and is installed as such.
-At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html).
+At least python 3.11 is required; it is recommended to use a [virtual environment](https://docs.python.org/3/library/venv.html). Here, we use [conda](https://conda.io/projects/conda/en/latest/user-guide/getting-started.html) ([miniconda installation guide](https://docs.conda.io/projects/miniconda/en/latest/)).
 For easy access of files, you need to install [filebrowser] in addition.
 
 ```sh
@@ -201,14 +201,14 @@ For all possible options, use the commands in the [uvicorn settings documentatio
 ## How to save data to psyserver
 
 To save participant data to the server it has to be sent in the json format of a POST request.
-The POST request can be made to `/<study>/save` which saves data as a json file, or `/<study>/save/csv` which save data as a csv file.
+The POST request can be made to `/<study>/save` which saves data as a json file.
 Upon succesful saving, a json object `{success: true}` is returned.
-Provide the `study_id` key such that the saved data will be named with the study_id.
+Provide the `participantID` key such that the saved data will be named with the participantID.
 
 ```js
 // example data
 participant_data = {
-  study_id: "debug_1",
+  participantID: "debug_1",
   condition: "1",
   experiment1: [2, 59, 121, 256],
   // ...

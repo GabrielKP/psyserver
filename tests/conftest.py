@@ -9,7 +9,7 @@ from psyserver.main import create_app
 @pytest.fixture(autouse=True)
 def change_test_dir(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    init_dir()
+    init_dir(no_filebrowser=True)
 
 
 @pytest.fixture()
