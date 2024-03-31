@@ -4,7 +4,7 @@ from psyserver.init import init_dir
 from psyserver.db import create_studies_table
 from psyserver.run import run_server
 
-__version__ = "0.4.3"
+__version__ = "0.5.0"
 
 
 def main():
