@@ -4,7 +4,7 @@ from psyserver.init import init_dir
 from psyserver.db import create_studies_table
 from psyserver.run import run_server
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 
 def main():
@@ -43,9 +43,9 @@ def main():
     args = parser.parse_args()
 
     # run command
-    if args.func == init_dir:
-        return args.func()
-    args.func(psyserver_dir=args.psyserver_dir)
+    if args.func == run_server:
+        return args.func(psyserver_dir=args.psyserver_dir)
+    return args.func()
 
 
 if __name__ == "__main__":
