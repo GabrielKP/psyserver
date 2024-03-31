@@ -51,7 +51,7 @@ def get_increment_study_count_db(study: str) -> Tuple[Optional[int], Optional[st
                 count = item[0]
 
         except sqlite3.OperationalError:
-            error = "table missing"
+            error = "table missing, run 'psyserver init_db'"
         else:
             # update count
             cur.execute("UPDATE studies SET count=? WHERE study=?", (count + 1, study))
@@ -83,7 +83,7 @@ def set_study_count_db(study: str, count: int) -> Optional[str]:
         try:
             _set_study_count_cur(study, count, cur)
         except sqlite3.OperationalError:
-            error = "table missing"
+            error = "table missing, run 'psyserver init_db'"
         else:
             conn.commit()
     return error
