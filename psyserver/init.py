@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 
+from psyserver.db import create_studies_table
+
 
 def replace_paths_unit_file(project_dir: Path):
     """Replaces python path and psyserver path in unit file example."""
@@ -36,6 +38,9 @@ def init_dir(no_filebrowser: bool = False):
 
     # replace the paths
     replace_paths_unit_file(dest_dir)
+
+    # Create the studies sqlite file
+    create_studies_table()
 
     # init filebrowser
     filebrowser_path = shutil.which("filebrowser")
