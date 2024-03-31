@@ -69,3 +69,56 @@ def test_save_data_json2(client):
     mock_open_exp_data.assert_called_once_with(
         "data/studydata/exp_cute/2023-11-02_01-49-39.json", "w"
     )
+
+
+def test_get_count_new_study(client):
+    """Get the count for a study not in the table yet"""
+    response = client.get("/test/get_count")
+    assert response.status_code == 200
+    assert response.json()["success"]
+    assert response.json()["count"] == 0
+
+
+def test_set_count_new_study(client):
+    """Set the count for a study not in the table yet"""
+    response = client.get("/test/set_count/5")
+    assert response.status_code == 200
+    assert response.json()["success"]
+
+    response = client.get("/test/get_count")
+    assert response.status_code == 200
+    assert response.json()["success"]
+    assert response.json()["count"] == 5
+
+
+def test_get_count_increment(client):
+    """Check whether count increments automatically"""
+    client.get("/test/set_count/1")
+    response = client.get("/test/get_count")
+    assert response.status_code == 200
+    assert response.json()["success"]
+    assert response.json()["count"] == 1
+
+    response = client.get("/test/get_count")
+    assert response.status_code == 200
+    assert response.json()["success"]
+    assert response.json()["count"] == 2
+
+
+def test_set_count_invalid_count(client):
+    """Check whether invalid inputs throw the correct error."""
+
+    response = client.get("/test/set_count/hi")
+    print(response.json())
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["type"] == "int_parsing"
+
+    # test that correct input still works afterwards
+    response = client.get("/test/set_count/2")
+    assert response.status_code == 200
+    assert response.json()["success"]
+
+    response = client.get("/test/get_count")
+    assert response.status_code == 200
+    assert response.json()["success"]
+    assert response.json()["count"] == 2

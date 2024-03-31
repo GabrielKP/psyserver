@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings
 
 DEFAULT_CONFIG_NAME = "psyserver.toml"
+DEFAULT_DB_PATH = "counter.db"
 
 
 class Settings(BaseSettings):
@@ -16,6 +17,10 @@ class Settings(BaseSettings):
 
 def default_config_path() -> Path:
     return Path.cwd() / DEFAULT_CONFIG_NAME
+
+
+def default_db_path() -> Path:
+    return Path.cwd() / DEFAULT_DB_PATH
 
 
 @lru_cache()

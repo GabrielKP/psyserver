@@ -1,6 +1,7 @@
 import argparse
 
 from psyserver.init import init_dir
+from psyserver.db import create_studies_table
 from psyserver.run import run_server
 
 __version__ = "0.4.3"
@@ -31,6 +32,12 @@ def main():
         "init", help="create an example psyserver directory"
     )
     parser_config.set_defaults(func=init_dir)
+
+    # init_db command
+    parser_init_db = subparsers.add_parser(
+        "init_db", help="Create the database file & table to track participant counts."
+    )
+    parser_init_db.set_defaults(func=create_studies_table)
 
     # parse arguments
     args = parser.parse_args()
