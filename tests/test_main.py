@@ -1,6 +1,11 @@
 import json
 import os
+from pathlib import Path
 from unittest.mock import Mock, mock_open, patch
+
+import requests
+
+from psyserver.settings import get_settings_toml
 
 cute_exp_html_start = """\
 <!DOCTYPE html>
@@ -33,11 +38,18 @@ def test_save_data_json1(client):
     ):
         response = client.post("/exp_cute/save", json=example_data)
     assert response.status_code == 200
-    assert response.json() == {"success": True}
+    assert response.json() == {
+        "success": True,
+        "status": " h_captcha_verification: h_captcha_response missing",
+    }
     written_data = "".join(
         [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
     )
-    assert written_data == json.dumps(example_data)
+    example_data["h_captcha_response"] = None
+    example_data["h_captcha_verification"] = "h_captcha_response missing"
+    written_json = json.loads(written_data)
+    for key, value in written_json.items():
+        assert value == example_data[key]
     mock_open_exp_data.assert_called_once_with(
         "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
     )
@@ -64,7 +76,11 @@ def test_save_data_json2(client):
     written_data = "".join(
         [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
     )
-    assert written_data == json.dumps(example_data)
+    example_data["h_captcha_response"] = None
+    example_data["h_captcha_verification"] = "h_captcha_response missing"
+    written_json = json.loads(written_data)
+    for key, value in written_json.items():
+        assert value == example_data[key]
     mock_open_exp_data.assert_called_once_with(
         "data/studydata/exp_cute/2023-11-02_01-49-39.json", "w"
     )
@@ -121,3 +137,131 @@ def test_set_count_invalid_count(client):
     assert response.status_code == 200
     assert response.json()["success"]
     assert response.json()["count"] == 2
+
+
+def test_save_data_json_h_captcha_no_secret_key(client):
+    example_data = {
+        "participantID": "debug_1",
+        "condition": "1",
+        "experiment1": [2, 59, 121, 256],
+        "h_captcha_response": "valid-response",
+    }
+
+    # control data saving
+    mock_open_exp_data = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(return_value="2023-11-02_01:49:39.905657")
+
+    # set secret key
+    with (
+        patch("psyserver.main.open", mock_open_exp_data, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+    ):
+        response = client.post("/exp_cute/save", json=example_data)
+    print(response.text)
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "status": " h_captcha_verification: secret missing",
+    }
+    written_data = "".join(
+        [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
+    )
+    assert json.loads(written_data)["h_captcha_verification"] == "secret missing"
+    mock_open_exp_data.assert_called_once_with(
+        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+    )
+
+
+def test_save_data_json_h_captcha_verified(client):
+    example_data = {
+        "participantID": "debug_1",
+        "condition": "1",
+        "experiment1": [2, 59, 121, 256],
+        "h_captcha_response": "valid-response",
+    }
+
+    # load config to test its url and use later to replace
+    mock_default_config_path = Mock(
+        return_value=Path.cwd() / "psyserver" / "example" / "psyserver.toml"
+    )
+    with patch("psyserver.settings.default_config_path", mock_default_config_path):
+        settings = get_settings_toml()
+
+    # ensure h_captcha verification is replaced with mock
+    mock_resp = Mock()
+    mock_resp.status_code = 200
+    mock_resp.json = Mock(return_value={"success": True})
+    mock_request_post = Mock(return_value=mock_resp)
+
+    # control data saving
+    mock_open_exp_data = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(return_value="2023-11-02_01:49:39.905657")
+
+    # set secret key
+    settings.h_captcha_secret = "secret key!"
+    mock_get_settings = Mock(return_value=settings)
+    with (
+        patch("psyserver.main.open", mock_open_exp_data, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+        patch("psyserver.settings.get_settings_toml", mock_get_settings),
+        patch("psyserver.main.requests.post", mock_request_post),
+    ):
+        response = client.post("/exp_cute/save", json=example_data)
+    assert response.status_code == 200
+    assert response.json() == {"success": True}
+    written_data = "".join(
+        [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
+    )
+    assert json.loads(written_data)["h_captcha_verification"] == "verified"
+    mock_open_exp_data.assert_called_once_with(
+        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+    )
+
+
+def test_save_data_json_h_captcha_failed_response(client):
+    example_data = {
+        "participantID": "debug_1",
+        "condition": "1",
+        "experiment1": [2, 59, 121, 256],
+        "h_captcha_response": "valid-response",
+    }
+
+    # load config to test its url and use later to replace
+    mock_default_config_path = Mock(
+        return_value=Path.cwd() / "psyserver" / "example" / "psyserver.toml"
+    )
+    with patch("psyserver.settings.default_config_path", mock_default_config_path):
+        settings = get_settings_toml()
+
+    # ensure h_captcha verification is replaced with mock
+    mock_resp = Mock()
+    mock_resp.status_code = 403
+    mock_resp.json = Mock(return_value={"success": False})
+    mock_request_post = Mock(return_value=mock_resp)
+
+    # control data saving
+    mock_open_exp_data = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(return_value="2023-11-02_01:49:39.905657")
+
+    # set secret key
+    settings.h_captcha_secret = "secret key!"
+    mock_get_settings = Mock(return_value=settings)
+    with (
+        patch("psyserver.main.open", mock_open_exp_data, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+        patch("psyserver.settings.get_settings_toml", mock_get_settings),
+        patch("psyserver.main.requests.post", mock_request_post),
+    ):
+        response = client.post("/exp_cute/save", json=example_data)
+    assert response.status_code == 200
+    assert response.json() == {"success": True}
+    written_data = "".join(
+        [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
+    )
+    assert json.loads(written_data)["h_captcha_verification"] == "verification failed"
+    mock_open_exp_data.assert_called_once_with(
+        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+    )

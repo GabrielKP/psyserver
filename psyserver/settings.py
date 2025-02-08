@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     studies_dir: str = "data/studies"
     data_dir: str = "data/studydata"
     redirect_url: str | None = None
+    h_captcha_verify_url: str = "https://api.hcaptcha.com/siteverify"
+    h_captcha_secret: str | None = None
 
 
 def default_config_path() -> Path:

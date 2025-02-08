@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 from typing import Dict, List, Union
 
+import requests
 from fastapi import Depends, FastAPI
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -22,6 +23,7 @@ text-align:center;"><h1>404 - Not Found</h1></div>
 
 class StudyData(BaseModel, extra="allow"):
     participantID: str | None = None
+    h_captcha_response: str | None = None
 
     model_config = {
         "json_schema_extra": {
@@ -86,16 +88,49 @@ def create_app() -> FastAPI:
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
+        ret_json["status"] = ""
+
+        # Deal with participantID
         participantID = ""
         if study_data.participantID is not None:
             participantID = f"{study_data.participantID}_"
             study_data_to_save = dict(study_data)
         else:
-            ret_json["status"] = (
-                "Entry 'participantID' not provided. Saved data only with timestamp."
+            ret_json["status"] += (
+                " Entry 'participantID' not provided. Saved data only with timestamp."
             )
             study_data_to_save = dict(study_data)
             study_data_to_save.pop("participantID")
+
+        # Deal with hcaptcha response
+        if study_data.h_captcha_response is not None:
+            if settings.h_captcha_secret is None:
+                ret_json["status"] += " h_captcha_verification: secret missing"
+                study_data_to_save["h_captcha_verification"] = "secret missing"
+            else:
+                response = requests.post(
+                    settings.h_captcha_verify_url,
+                    data=dict(
+                        secret=settings.h_captcha_secret,
+                        response=study_data.h_captcha_response,
+                    ),
+                )
+                if response.status_code == 200:
+                    suc = response.json()["success"]
+                    study_data_to_save["h_captcha_verification"] = (
+                        "verified" if suc else "unverified"
+                    )
+                else:
+                    study_data_to_save["h_captcha_verification"] = "verification failed"
+
+        else:
+            ret_json["status"] += " h_captcha_verification: h_captcha_response missing"
+            study_data_to_save["h_captcha_verification"] = "h_captcha_response missing"
+
+        if ret_json["status"] == "":
+            ret_json.pop("status")
+
+        # Save data
         now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
         filepath = os.path.join(data_dir, f"{participantID}{now}.json")
 

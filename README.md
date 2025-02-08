@@ -181,11 +181,15 @@ The configuration has two groups:
 studies_dir = "studies"
 data_dir = "data"
 redirect_url = "https://www.example.com"
+h_captcha_verify_url = "https://api.hcaptcha.com/siteverify"
+h_captcha_secret = <YOUR-SECRET>
 ```
 
 - `studies_dir`: path to directory which contains studies. Any directory inside will be reachable via the url. E.g. a study in `<studies_dir>/exp_cute/index.html` will have the url `<host>:<port>/exp_cute/index.html`.
 - `data_dir`: directory in which study data is saved. E.g. data submissions to the url `<host>:<port>/exp_cute/save` will be saved in `<data_dir>/exp_cute/`. Has to be different from `studies_dir`.
 - `redirect_url`: Visitors will be redirected to this url when accessing routes that are not found. Without this key, a 404 - Not found html will be displayed.
+- `h_captcha_verify_url`: URL to the [hcaptcha verification server](https://docs.hcaptcha.com/#verify-the-user-response-server-side), if different from default.
+- `h_captcha_secret`: Hcaptcha secret found in the settings/secrets section of your profile.
 
 ### uvicorn config
 
