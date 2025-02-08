@@ -9,8 +9,8 @@ requires-python = ">=3.11,<3.12"
 license = {"file" = "LICENSE"}
 keywords = ["experiments", "studies", "behavioral", "online", "server"]
 dependencies = [
-    "fastapi[all]>=0.104.0,<0.105.0",
-    "uvicorn[standard]>=0.23.0,<0.24.0",
+    "fastapi[all]>=0.115.0,<0.116.0",
+    "uvicorn[standard]>=0.34.0,<0.35.0",
 ]
 dynamic = ["version"]
 
@@ -30,6 +30,7 @@ dev = [
     "httpx",
     "coverage",
     "flit",
+    "pre-commit",
 ]
 
 [tool.pytest.ini_options]
@@ -38,3 +39,10 @@ testpaths = ["tests"]
 [tool.coverage.run]
 branch = true
 source = ["psyserver"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+extend-select = ["I", "E501"]
+ignore = ["F401"]
