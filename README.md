@@ -244,7 +244,11 @@ $ git clone git@github.com:GabrielKP/psyserver.git
 $ cd psyserver
 
 # 3. install in editor mode
-$ pip install -e .
+$ pip install -e .[dev]
+
+# 4. install & run pre-commit
+pre-commit install
+pre-commit run --all-files
 ```
 
 ### Testing

@@ -1,7 +1,6 @@
-import os
 import json
-from unittest.mock import patch, mock_open, Mock
-
+import os
+from unittest.mock import Mock, mock_open, patch
 
 cute_exp_html_start = """\
 <!DOCTYPE html>

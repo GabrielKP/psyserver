@@ -1,4 +1,3 @@
-import csv
 import json
 import os
 import shutil
@@ -6,17 +5,18 @@ import subprocess
 from datetime import datetime
 from typing import Dict, List, Union
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing_extensions import Annotated
 
-from psyserver.settings import Settings, get_settings_toml
 from psyserver.db import get_increment_study_count_db, set_study_count_db
+from psyserver.settings import Settings, get_settings_toml
 
 NOT_FOUND_HTML = """\
-<div style="display:flex;flex-direction:column;justify-content:center;text-align:center;"><h1>404 - Not Found</h1></div>
+<div style="display:flex;flex-direction:column;justify-content:center;
+text-align:center;"><h1>404 - Not Found</h1></div>
 """
 
 
@@ -65,7 +65,7 @@ def create_app() -> FastAPI:
     if filebrowser_path is None:
         print("CRITICAL: Filebrowser not found. Please install filebrowser.")
     else:
-        p_filebrowser = subprocess.Popen(
+        subprocess.Popen(
             [filebrowser_path, "-c", "filebrowser.toml", "-r", "data"],
             stdout=subprocess.PIPE,
         )

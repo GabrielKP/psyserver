@@ -1,10 +1,10 @@
 import argparse
 
-from psyserver.init import init_dir
 from psyserver.db import create_studies_table
+from psyserver.init import init_dir
 from psyserver.run import run_server
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 
 
 def main():

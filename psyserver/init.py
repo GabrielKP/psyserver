@@ -47,7 +47,8 @@ def init_dir(no_filebrowser: bool = False):
     if filebrowser_path is None:
         print(
             "Filebrowser not found. Install it by running: "
-            "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash"
+            "curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh"
+            " | bash"
         )
     elif no_filebrowser:
         print("Skipping filebrowser initialization.")

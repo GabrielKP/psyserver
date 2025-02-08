@@ -1,7 +1,7 @@
-from typing import Optional, Tuple
 import sqlite3
-
 from pathlib import Path
+from typing import Optional, Tuple
+
 from psyserver.settings import default_db_path
 
 

@@ -1,5 +1,4 @@
 import pytest
-
 from fastapi.testclient import TestClient
 
 from psyserver.init import init_dir

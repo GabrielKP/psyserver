@@ -1,5 +1,5 @@
-import tomllib
 import os
+import tomllib
 from pathlib import Path
 
 import uvicorn
