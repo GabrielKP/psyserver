@@ -141,21 +141,27 @@ def create_app() -> FastAPI:
     @app.post("/{study}/save_audio")
     async def save_audio(
         study: str,
-        participantID: Annotated[str, Form()],
-        audioID: Annotated[str, Form()],
-        form_data: Annotated[UploadFile, File()],
+        audio_data: Annotated[UploadFile, File()],
         settings: Annotated[Settings, Depends(get_settings_toml)],
     ) -> Dict[str, Union[bool, str]]:
         """Save audio data uploaded as UploadFile."""
 
+        if audio_data.filename is None:
+            return {"success": False, "error": "audio_data.filename is None"}
+        filename_parts = audio_data.filename.split(".")
+        if len(filename_parts) != 2:
+            return {
+                "success": False,
+                "error": "audio_data.filename needs to only have one dot.",
+            }
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{participantID}_{audioID}_{timestamp}.webm"
+        filename = f"{filename_parts[0]}_{timestamp}.{filename_parts[1]}"
 
         data_dir = os.path.join(settings.data_dir, study, "audio")
         os.makedirs(data_dir, exist_ok=True)
 
         with open(os.path.join(data_dir, filename), "wb") as f_out:
-            f_out.write(await form_data.read())
+            f_out.write(await audio_data.read())
         return {"success": True, "filename": filename}
 
     @app.get("/favicon.ico", include_in_schema=False)
