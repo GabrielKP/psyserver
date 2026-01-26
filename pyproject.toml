@@ -9,8 +9,9 @@ requires-python = ">=3.11,<3.12"
 license = {"file" = "LICENSE"}
 keywords = ["experiments", "studies", "behavioral", "online", "server"]
 dependencies = [
-    "fastapi[all]>=0.115.0,<0.116.0",
-    "uvicorn[standard]>=0.34.0,<0.35.0",
+    "fastapi[all]>=0.128.0,<0.129.0",
+    "uvicorn[standard]>=0.40.0,<0.41.0",
+    "python-multipart",
     "requests",
 ]
 dynamic = ["version"]

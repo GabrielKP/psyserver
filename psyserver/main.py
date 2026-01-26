@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Dict, List, Union
 
 import requests
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, File, Form, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -137,6 +137,26 @@ def create_app() -> FastAPI:
         with open(filepath, "w") as f_out:
             json.dump(study_data_to_save, f_out)
         return ret_json
+
+    @app.post("/{study}/save_audio")
+    async def save_audio(
+        study: str,
+        participantID: Annotated[str, Form()],
+        audioID: Annotated[str, Form()],
+        form_data: Annotated[UploadFile, File()],
+        settings: Annotated[Settings, Depends(get_settings_toml)],
+    ) -> Dict[str, Union[bool, str]]:
+        """Save audio data uploaded as UploadFile."""
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{participantID}_{audioID}_{timestamp}.webm"
+
+        data_dir = os.path.join(settings.data_dir, study, "audio")
+        os.makedirs(data_dir, exist_ok=True)
+
+        with open(os.path.join(data_dir, filename), "wb") as f_out:
+            f_out.write(await form_data.read())
+        return {"success": True, "filename": filename}
 
     @app.get("/favicon.ico", include_in_schema=False)
     async def favicon():
