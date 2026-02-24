@@ -23,6 +23,8 @@ text-align:center;"><h1>404 - Not Found</h1></div>
 
 class StudyData(BaseModel, extra="allow"):
     participantID: str | None = None
+    participant_id: str | None = None
+    session_dir: str | None = None
     h_captcha_response: str | None = None
 
     model_config = {
@@ -33,7 +35,14 @@ class StudyData(BaseModel, extra="allow"):
                     "condition": "1",
                     "experiment1": [2, 59, 121, 256],
                     "experiment2": ["yes", "maybe", "yes"],
-                }
+                },
+                {
+                    "participant_id": "debug_1",
+                    "session_dir": "screening",
+                    "trialdata": [{"trial": 1, "condition": "1", "response": 2}],
+                    "eventdata": [{"event": "initialization", "time": 1740446400}],
+                    "other": "data",
+                },
             ]
         }
     }
@@ -95,12 +104,22 @@ def create_app() -> FastAPI:
         if study_data.participantID is not None:
             participantID = f"{study_data.participantID}_"
             study_data_to_save = dict(study_data)
+        elif study_data.participant_id is not None:
+            # support new format of participant_id
+            participantID = f"{study_data.participant_id}_"
+            study_data_to_save = dict(study_data)
         else:
             ret_json["status"] += (
                 " Entry 'participantID' not provided. Saved data only with timestamp."
             )
             study_data_to_save = dict(study_data)
             study_data_to_save.pop("participantID")
+
+        # Deal with session_dir
+        if study_data.session_dir is not None:
+            data_dir = os.path.join(data_dir, study_data.session_dir)
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir)
 
         # Deal with hcaptcha response
         if study_data.h_captcha_response is not None:
