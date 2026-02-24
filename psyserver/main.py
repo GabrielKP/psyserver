@@ -161,6 +161,7 @@ def create_app() -> FastAPI:
     async def save_audio(
         study: str,
         audio_data: Annotated[UploadFile, File()],
+        session_dir: Annotated[str | None, Form(None)],
         settings: Annotated[Settings, Depends(get_settings_toml)],
     ) -> Dict[str, Union[bool, str]]:
         """Save audio data uploaded as UploadFile."""
@@ -176,7 +177,10 @@ def create_app() -> FastAPI:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{filename_parts[0]}_{timestamp}.{filename_parts[1]}"
 
-        data_dir = os.path.join(settings.data_dir, study, "audio")
+        if session_dir is not None:
+            data_dir = os.path.join(settings.data_dir, study, session_dir, "audio")
+        else:
+            data_dir = os.path.join(settings.data_dir, study, "audio")
         os.makedirs(data_dir, exist_ok=True)
 
         with open(os.path.join(data_dir, filename), "wb") as f_out:
