@@ -1,9 +1,6 @@
 import json
-import os
 from pathlib import Path
 from unittest.mock import Mock, mock_open, patch
-
-import requests
 
 from psyserver.settings import get_settings_toml
 
@@ -51,7 +48,7 @@ def test_save_data_json1(client):
     for key, value in written_json.items():
         assert value == example_data[key]
     mock_open_exp_data.assert_called_once_with(
-        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+        Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )
 
 
@@ -82,7 +79,40 @@ def test_save_data_json2(client):
     for key, value in written_json.items():
         assert value == example_data[key]
     mock_open_exp_data.assert_called_once_with(
-        "data/studydata/exp_cute/2023-11-02_01-49-39.json", "w"
+        Path("data/studydata/exp_cute/2023-11-02_01-49-39.json"), "w"
+    )
+
+
+def test_save_data_json3(client):
+    """participant_id (snake_case) is used in the filename."""
+    example_data = {
+        "participant_id": "debug_1",
+        "condition": "1",
+        "experiment1": [2, 59, 121, 256],
+    }
+    mock_open_exp_data = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(return_value="2023-11-02_01:49:39.905657")
+    with (
+        patch("psyserver.main.open", mock_open_exp_data, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+    ):
+        response = client.post("/exp_cute/save", json=example_data)
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "status": " h_captcha_verification: h_captcha_response missing",
+    }
+    written_data = "".join(
+        [_call.args[0] for _call in mock_open_exp_data.mock_calls[2:-1]]
+    )
+    written_json = json.loads(written_data)
+    assert written_json["participant_id"] == "debug_1"
+    assert written_json["condition"] == "1"
+    assert written_json["experiment1"] == [2, 59, 121, 256]
+    assert "participantID" not in written_json
+    mock_open_exp_data.assert_called_once_with(
+        Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )
 
 
@@ -169,7 +199,7 @@ def test_save_data_json_h_captcha_no_secret_key(client):
     )
     assert json.loads(written_data)["h_captcha_verification"] == "secret missing"
     mock_open_exp_data.assert_called_once_with(
-        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+        Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )
 
 
@@ -216,7 +246,7 @@ def test_save_data_json_h_captcha_verified(client):
     )
     assert json.loads(written_data)["h_captcha_verification"] == "verified"
     mock_open_exp_data.assert_called_once_with(
-        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+        Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )
 
 
@@ -239,7 +269,7 @@ def test_save_audio_without_session_dir(client):
     assert response.json()["success"] is True
     assert response.json()["filename"] == "participant_1_20231102_014939.webm"
     mock_open_audio.assert_called_once_with(
-        os.path.join(
+        Path(
             "data",
             "studydata",
             "exp_cute",
@@ -270,7 +300,7 @@ def test_save_audio_with_session_dir(client):
     assert response.json()["success"] is True
     assert response.json()["filename"] == "participant_1_20231102_014939.webm"
     mock_open_audio.assert_called_once_with(
-        os.path.join(
+        Path(
             "data",
             "studydata",
             "exp_cute",
@@ -325,5 +355,5 @@ def test_save_data_json_h_captcha_failed_response(client):
     )
     assert json.loads(written_data)["h_captcha_verification"] == "verification failed"
     mock_open_exp_data.assert_called_once_with(
-        "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+        Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )

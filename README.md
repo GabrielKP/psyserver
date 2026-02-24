@@ -258,6 +258,9 @@ pre-commit run --all-files
 ### Testing
 
 ```sh
+# reinstall package before testing!
+$ pip install -e .
+
 # normal test
 $ pytest . -v
 

@@ -1,12 +1,12 @@
 import json
-import os
 import shutil
 import subprocess
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Union
 
 import requests
-from fastapi import Depends, FastAPI, File, Form, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -70,6 +70,16 @@ class StudyDataCsv(BaseModel):
     }
 
 
+def check_path_escape_and_create_dir(
+    base_path: Path, test_path: Path, is_file: bool = False
+) -> None:
+    """Raise error if test_path escapes the base directory."""
+    if not test_path.resolve().is_relative_to(base_path.resolve()):
+        raise HTTPException(status_code=400, detail="Invalid path component.")
+    if not is_file and not test_path.exists():
+        test_path.mkdir(parents=True, exist_ok=True)
+
+
 def create_app() -> FastAPI:
     # open filebrowser
     filebrowser_path = shutil.which("filebrowser")
@@ -93,9 +103,9 @@ def create_app() -> FastAPI:
     ) -> Dict[str, Union[bool, str]]:
         """Save submitted json object to file."""
         ret_json: Dict[str, Union[bool, str]] = {"success": True}
-        data_dir = os.path.join(settings.data_dir, study)
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir)
+        base_path = Path(settings.data_dir)
+        data_dir = base_path / study
+        check_path_escape_and_create_dir(base_path, data_dir)
 
         ret_json["status"] = ""
 
@@ -115,9 +125,8 @@ def create_app() -> FastAPI:
 
         # Deal with session_dir
         if study_data.session_dir is not None:
-            data_dir = os.path.join(data_dir, study_data.session_dir)
-            if not os.path.exists(data_dir):
-                os.makedirs(data_dir)
+            data_dir = data_dir / study_data.session_dir
+            check_path_escape_and_create_dir(base_path, data_dir)
 
         # Deal with hcaptcha response
         if study_data.h_captcha_response is not None:
@@ -149,7 +158,8 @@ def create_app() -> FastAPI:
 
         # Save data
         now = str(datetime.now())[:19].replace(":", "-").replace(" ", "_")
-        filepath = os.path.join(data_dir, f"{participantID}{now}.json")
+        filepath = data_dir / f"{participantID}{now}.json"
+        check_path_escape_and_create_dir(base_path, filepath, is_file=True)
 
         with open(filepath, "w") as f_out:
             json.dump(study_data_to_save, f_out)
@@ -164,6 +174,10 @@ def create_app() -> FastAPI:
     ) -> Dict[str, Union[bool, str]]:
         """Save audio data uploaded as UploadFile."""
 
+        base_path = Path(settings.data_dir)
+        data_dir = base_path / study
+        check_path_escape_and_create_dir(base_path, data_dir)
+
         if audio_data.filename is None:
             return {"success": False, "error": "audio_data.filename is None"}
         filename_parts = audio_data.filename.split(".")
@@ -176,12 +190,14 @@ def create_app() -> FastAPI:
         filename = f"{filename_parts[0]}_{timestamp}.{filename_parts[1]}"
 
         if session_dir is not None:
-            data_dir = os.path.join(settings.data_dir, study, session_dir, "audio")
+            data_dir = data_dir / session_dir / "audio"
         else:
-            data_dir = os.path.join(settings.data_dir, study, "audio")
-        os.makedirs(data_dir, exist_ok=True)
+            data_dir = data_dir / "audio"
+        check_path_escape_and_create_dir(base_path, data_dir)
 
-        with open(os.path.join(data_dir, filename), "wb") as f_out:
+        filepath = data_dir / filename
+        check_path_escape_and_create_dir(base_path, filepath, is_file=True)
+        with open(filepath, "wb") as f_out:
             f_out.write(await audio_data.read())
         return {"success": True, "filename": filename}
 
