@@ -58,7 +58,7 @@ def test_save_data_json1(client):
 def test_save_data_json2(client):
     """no id, saving with timestamp instead."""
     example_data = {
-        "participant_id": "debug_1",
+        "wrong_id_field": "debug_1",
         "condition": "1",
         "experiment1": [2, 59, 121, 256],
     }
@@ -217,6 +217,68 @@ def test_save_data_json_h_captcha_verified(client):
     assert json.loads(written_data)["h_captcha_verification"] == "verified"
     mock_open_exp_data.assert_called_once_with(
         "data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json", "w"
+    )
+
+
+def test_save_audio_without_session_dir(client):
+    """Save audio without session_dir — should default to {study}/audio/."""
+    mock_open_audio = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(
+        return_value=Mock(strftime=Mock(return_value="20231102_014939"))
+    )
+    with (
+        patch("psyserver.main.open", mock_open_audio, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+    ):
+        response = client.post(
+            "/exp_cute/save_audio",
+            files={"audio_data": ("participant_1.webm", b"fake-audio", "audio/webm")},
+        )
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+    assert response.json()["filename"] == "participant_1_20231102_014939.webm"
+    mock_open_audio.assert_called_once_with(
+        os.path.join(
+            "data",
+            "studydata",
+            "exp_cute",
+            "audio",
+            "participant_1_20231102_014939.webm",
+        ),
+        "wb",
+    )
+
+
+def test_save_audio_with_session_dir(client):
+    """Save audio with session_dir — should nest under {study}/{session_dir}/audio/."""
+    mock_open_audio = mock_open()
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(
+        return_value=Mock(strftime=Mock(return_value="20231102_014939"))
+    )
+    with (
+        patch("psyserver.main.open", mock_open_audio, create=False),
+        patch("psyserver.main.datetime", mock_datetime),
+    ):
+        response = client.post(
+            "/exp_cute/save_audio",
+            files={"audio_data": ("participant_1.webm", b"fake-audio", "audio/webm")},
+            data={"session_dir": "screening"},
+        )
+    assert response.status_code == 200
+    assert response.json()["success"] is True
+    assert response.json()["filename"] == "participant_1_20231102_014939.webm"
+    mock_open_audio.assert_called_once_with(
+        os.path.join(
+            "data",
+            "studydata",
+            "exp_cute",
+            "screening",
+            "audio",
+            "participant_1_20231102_014939.webm",
+        ),
+        "wb",
     )
 
 

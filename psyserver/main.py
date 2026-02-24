@@ -103,17 +103,15 @@ def create_app() -> FastAPI:
         participantID = ""
         if study_data.participantID is not None:
             participantID = f"{study_data.participantID}_"
-            study_data_to_save = dict(study_data)
         elif study_data.participant_id is not None:
             # support new format of participant_id
             participantID = f"{study_data.participant_id}_"
-            study_data_to_save = dict(study_data)
         else:
             ret_json["status"] += (
-                " Entry 'participantID' not provided. Saved data only with timestamp."
+                " Entry 'participantID' or 'participant_id' not provided."
+                " Saved data only with timestamp."
             )
-            study_data_to_save = dict(study_data)
-            study_data_to_save.pop("participantID")
+        study_data_to_save = study_data.model_dump(exclude_none=True)
 
         # Deal with session_dir
         if study_data.session_dir is not None:
@@ -161,8 +159,8 @@ def create_app() -> FastAPI:
     async def save_audio(
         study: str,
         audio_data: Annotated[UploadFile, File()],
-        session_dir: Annotated[str | None, Form(None)],
         settings: Annotated[Settings, Depends(get_settings_toml)],
+        session_dir: Annotated[str | None, Form()] = None,
     ) -> Dict[str, Union[bool, str]]:
         """Save audio data uploaded as UploadFile."""
 
