@@ -234,6 +234,20 @@ $.ajax({
 
 **Note that you need to call `JSON.stringify` on your data**. Without this, you will get an `unprocessable entity` error.
 
+### Uploading video (screen recordings)
+
+Videos, e.g. screen recordings made with `getDisplayMedia` and `MediaRecorder`, can be uploaded as a multipart form to `/<study>/video`.
+The file has to be sent in the field `video_data` and its filename must contain exactly one dot (e.g. `debug_1.webm`).
+It is saved as `<data_dir>/<study>/video/<name>_<timestamp>.<ext>`, and `{success: true, filename: "<saved filename>"}` is returned.
+
+```js
+const formData = new FormData();
+formData.append("video_data", videoBlob, "debug_1.webm");
+fetch("/exp_screenrec/video", { method: "POST", body: formData });
+```
+
+See `exp_screenrec` in the example studies for a complete, minimal recording page.
+
 ## Development
 
 ### Setup

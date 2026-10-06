@@ -1,7 +1,9 @@
 import json
+import os
 from pathlib import Path
 from unittest.mock import Mock, mock_open, patch
 
+from psyserver.main import create_app
 from psyserver.settings import get_settings_toml
 
 cute_exp_html_start = """\
@@ -357,3 +359,147 @@ def test_save_data_json_h_captcha_failed_response(client):
     mock_open_exp_data.assert_called_once_with(
         Path("data/studydata/exp_cute/debug_1_2023-11-02_01-49-39.json"), "w"
     )
+
+
+# --- video upload -------------------------------------------------------------
+
+# start of a WebM (EBML) file as produced by MediaRecorder, followed by
+# ~2MB random bytes: larger than the multipart spool size and the copy chunk
+# size, so the upload is actually streamed to disk in several chunks.
+WEBM_HEADER = bytes.fromhex("1a45dfa39f4286810142f7810142f2810442f381084282847765626d")
+VIDEO_DIR = Path("data", "studydata", "exp_cute", "video")
+
+
+def _fixed_datetime():
+    mock_datetime = Mock()
+    mock_datetime.now = Mock(
+        return_value=Mock(strftime=Mock(return_value="20231102_014939"))
+    )
+    return mock_datetime
+
+
+def test_save_video(client):
+    """Video is written byte-identical to {study}/video/ with timestamped name."""
+    payload = WEBM_HEADER + os.urandom(2 * 1024 * 1024)
+    with patch("psyserver.main.datetime", _fixed_datetime()):
+        response = client.post(
+            "/exp_cute/video",
+            files={"video_data": ("participant_1.webm", payload, "video/webm")},
+        )
+    assert response.status_code == 200
+    assert response.json() == {
+        "success": True,
+        "filename": "participant_1_20231102_014939.webm",
+    }
+    saved = VIDEO_DIR / "participant_1_20231102_014939.webm"
+    assert saved.read_bytes() == payload
+    assert list(VIDEO_DIR.iterdir()) == [saved]
+    # must not end up in the audio dir
+    assert not Path("data", "studydata", "exp_cute", "audio").exists()
+
+
+def test_save_video_multiple_participants(client):
+    """Separate uploads end up as separate files with their own content."""
+    payloads = {
+        "participant_1": WEBM_HEADER + os.urandom(1000),
+        "participant_2": WEBM_HEADER + os.urandom(1000),
+    }
+    with patch("psyserver.main.datetime", _fixed_datetime()):
+        for pid, payload in payloads.items():
+            response = client.post(
+                "/exp_cute/video",
+                files={"video_data": (f"{pid}.webm", payload, "video/webm")},
+            )
+            assert response.status_code == 200
+            assert response.json()["success"] is True
+
+    assert len(list(VIDEO_DIR.iterdir())) == 2
+    for pid, payload in payloads.items():
+        assert (VIDEO_DIR / f"{pid}_20231102_014939.webm").read_bytes() == payload
+
+
+def test_save_video_mp4(client):
+    """Safari's MediaRecorder produces mp4; the extension has to be kept."""
+    payload = bytes.fromhex("0000001c66747970") + os.urandom(1000)
+    with patch("psyserver.main.datetime", _fixed_datetime()):
+        response = client.post(
+            "/exp_cute/video",
+            files={"video_data": ("participant_1.mp4", payload, "video/mp4")},
+        )
+    assert response.status_code == 200
+    assert response.json()["filename"] == "participant_1_20231102_014939.mp4"
+    assert (VIDEO_DIR / "participant_1_20231102_014939.mp4").read_bytes() == payload
+
+
+def test_save_video_invalid_filename(client):
+    """Filenames without exactly one dot are rejected and nothing is written."""
+    for bad_name in ["participant.1.webm", "participant_1"]:
+        response = client.post(
+            "/exp_cute/video",
+            files={"video_data": (bad_name, WEBM_HEADER, "video/webm")},
+        )
+        assert response.status_code == 200
+        assert response.json() == {
+            "success": False,
+            "error": "video_data.filename needs to only have one dot.",
+        }
+    assert list(VIDEO_DIR.iterdir()) == []
+
+
+def test_save_video_ignores_session_dir(client):
+    """The video route has no session_dir: files always go to {study}/video/."""
+    with patch("psyserver.main.datetime", _fixed_datetime()):
+        response = client.post(
+            "/exp_cute/video",
+            files={"video_data": ("participant_1.webm", WEBM_HEADER, "video/webm")},
+            data={"session_dir": "screening"},
+        )
+    assert response.status_code == 200
+    assert (VIDEO_DIR / "participant_1_20231102_014939.webm").exists()
+    assert not Path("data", "studydata", "exp_cute", "screening").exists()
+
+
+def test_save_video_missing_file(client):
+    response = client.post("/exp_cute/video", data={"other": "field"})
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["body", "video_data"]
+    assert not VIDEO_DIR.exists()
+
+
+def test_exp_screenrec_index(client):
+    """The example study is served and uploads to the video route."""
+    response = client.get("/exp_screenrec/")
+    assert response.status_code == 200
+    assert "getDisplayMedia" in response.text
+    assert '"/exp_screenrec/video"' in response.text
+    assert '"video_data"' in response.text
+    assert Path("data", "studydata", "exp_screenrec").is_dir()
+
+
+def test_create_app_starts_filebrowser(change_test_dir):
+    """By default create_app launches filebrowser on the data dir."""
+    mock_popen = Mock()
+    with (
+        patch("psyserver.main.shutil.which", Mock(return_value="/bin/filebrowser")),
+        patch("psyserver.main.subprocess.Popen", mock_popen),
+    ):
+        create_app()
+    mock_popen.assert_called_once()
+    assert mock_popen.call_args.args[0] == [
+        "/bin/filebrowser",
+        "-c",
+        "filebrowser.toml",
+        "-r",
+        "data",
+    ]
+
+
+def test_create_app_no_filebrowser(change_test_dir):
+    """no_filebrowser=True (used by the tests) must not spawn a process."""
+    mock_popen = Mock()
+    with (
+        patch("psyserver.main.shutil.which", Mock(return_value="/bin/filebrowser")),
+        patch("psyserver.main.subprocess.Popen", mock_popen),
+    ):
+        create_app(no_filebrowser=True)
+    mock_popen.assert_not_called()

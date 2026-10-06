@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Screen recording</title>
+  </head>
+  <body>
+    <!-- getDisplayMedia only works on https or on localhost. -->
+    <h1>Screen recording</h1>
+    <p>
+      <label>
+        Participant ID:
+        <input id="participant_id" type="text" value="debug_1" />
+      </label>
+    </p>
+    <p>
+      <button id="start">Start recording</button>
+      <button id="stop" disabled>Stop &amp; upload</button>
+    </p>
+    <p id="status">Not recording.</p>
+
+    <script>
+      const UPLOAD_URL = "/exp_screenrec/video";
+      const MIME_TYPES = [
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm",
+        "video/mp4", // Safari
+      ];
+
+      const startButton = document.getElementById("start");
+      const stopButton = document.getElementById("stop");
+      const statusText = document.getElementById("status");
+
+      let stream = null;
+      let recorder = null;
+      let chunks = [];
+
+      function setStatus(text) {
+        statusText.textContent = text;
+      }
+
+      async function startRecording() {
+        try {
+          stream = await navigator.mediaDevices.getDisplayMedia({
+            video: true,
+            audio: true,
+          });
+        } catch (err) {
+          setStatus("Screen sharing was not allowed: " + err);
+          return;
+        }
+
+        const mimeType = MIME_TYPES.find((t) => MediaRecorder.isTypeSupported(t));
+        recorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+        chunks = [];
+        recorder.ondataavailable = (event) => {
+          if (event.data.size > 0) chunks.push(event.data);
+        };
+        recorder.onstop = uploadRecording;
+        recorder.start(1000); // emit a chunk every second
+
+        // the browser's own "Stop sharing" button also ends the recording
+        stream.getVideoTracks()[0].onended = stopRecording;
+
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        setStatus("Recording...");
+      }
+
+      function stopRecording() {
+        if (recorder && recorder.state !== "inactive") recorder.stop();
+        if (stream) stream.getTracks().forEach((track) => track.stop());
+        stopButton.disabled = true;
+      }
+
+      async function uploadRecording() {
+        setStatus("Uploading...");
+        const mimeType = recorder.mimeType || "video/webm";
+        const extension = mimeType.startsWith("video/mp4") ? "mp4" : "webm";
+        const blob = new Blob(chunks, { type: mimeType });
+
+        // the server requires exactly one dot in the filename
+        const participantID = document
+          .getElementById("participant_id")
+          .value.replaceAll(".", "_");
+        const formData = new FormData();
+        formData.append("video_data", blob, `${participantID}.${extension}`);
+
+        try {
+          const response = await fetch(UPLOAD_URL, {
+            method: "POST",
+            body: formData,
+          });
+          const result = await response.json();
+          if (result.success) {
+            setStatus("Saved as " + result.filename);
+          } else {
+            setStatus("Upload failed: " + JSON.stringify(result));
+          }
+        } catch (err) {
+          setStatus("Upload failed: " + err);
+        }
+        startButton.disabled = false;
+      }
+
+      startButton.onclick = startRecording;
+      stopButton.onclick = stopRecording;
+    </script>
+  </body>
+</html>

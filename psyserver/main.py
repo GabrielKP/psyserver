@@ -80,16 +80,17 @@ def check_path_escape_and_create_dir(
         test_path.mkdir(parents=True, exist_ok=True)
 
 
-def create_app() -> FastAPI:
+def create_app(no_filebrowser: bool = False) -> FastAPI:
     # open filebrowser
-    filebrowser_path = shutil.which("filebrowser")
-    if filebrowser_path is None:
-        print("CRITICAL: Filebrowser not found. Please install filebrowser.")
-    else:
-        subprocess.Popen(
-            [filebrowser_path, "-c", "filebrowser.toml", "-r", "data"],
-            stdout=subprocess.PIPE,
-        )
+    if not no_filebrowser:
+        filebrowser_path = shutil.which("filebrowser")
+        if filebrowser_path is None:
+            print("CRITICAL: Filebrowser not found. Please install filebrowser.")
+        else:
+            subprocess.Popen(
+                [filebrowser_path, "-c", "filebrowser.toml", "-r", "data"],
+                stdout=subprocess.PIPE,
+            )
 
     # server
     app = FastAPI()
@@ -199,6 +200,36 @@ def create_app() -> FastAPI:
         check_path_escape_and_create_dir(base_path, filepath, is_file=True)
         with open(filepath, "wb") as f_out:
             f_out.write(await audio_data.read())
+        return {"success": True, "filename": filename}
+
+    @app.post("/{study}/video")
+    async def save_video(
+        study: str,
+        video_data: Annotated[UploadFile, File()],
+        settings: Annotated[Settings, Depends(get_settings_toml)],
+    ) -> Dict[str, Union[bool, str]]:
+        """Save video data (e.g. a getDisplayMedia recording) uploaded as UploadFile."""
+
+        base_path = Path(settings.data_dir)
+        data_dir = base_path / study / "video"
+        check_path_escape_and_create_dir(base_path, data_dir)
+
+        if video_data.filename is None:
+            return {"success": False, "error": "video_data.filename is None"}
+        filename_parts = video_data.filename.split(".")
+        if len(filename_parts) != 2:
+            return {
+                "success": False,
+                "error": "video_data.filename needs to only have one dot.",
+            }
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{filename_parts[0]}_{timestamp}.{filename_parts[1]}"
+
+        filepath = data_dir / filename
+        check_path_escape_and_create_dir(base_path, filepath, is_file=True)
+        # stream to disk in chunks: screen recordings can be large
+        with open(filepath, "wb") as f_out:
+            shutil.copyfileobj(video_data.file, f_out)
         return {"success": True, "filename": filename}
 
     @app.get("/favicon.ico", include_in_schema=False)

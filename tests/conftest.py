@@ -15,7 +15,7 @@ def change_test_dir(tmp_path, monkeypatch):
 
 @pytest.fixture()
 def app(change_test_dir):
-    return create_app()
+    return create_app(no_filebrowser=True)
 
 
 @pytest.fixture()
